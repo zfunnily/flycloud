@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using TestSkillSystem;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
+
+namespace PlayerCharacter
+{
 //技能管理器
 public class CharacterSkillManager : MonoBehaviour
 {
@@ -128,4 +131,5 @@ public class CharacterSkillManager : MonoBehaviour
         }
         Debug.Log("技能CD完毕over");
     }
+}
 }

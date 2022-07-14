@@ -1,7 +1,9 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class CharacterStateData : MonoBehaviour {
+namespace PlayerCharacter
+{
+public class CharacterStateData : MonoBehaviour, IMessageReceiver {
 
      public float HP = 100;
      public float SP = 100;
@@ -188,20 +190,82 @@ public class CharacterStateData : MonoBehaviour {
     // Called in slide animation.
     void AE_SlideDust()
     {
-        // Vector3 spawnPosition;
+        Vector3 spawnPosition;
 
-        // if (m_facingDirection == 1)
-        //     spawnPosition = m_wallSensorR2.transform.position;
-        // else
-        //     spawnPosition = m_wallSensorL2.transform.position;
+        if (m_facingDirection == 1)
+            spawnPosition = m_wallSensorR2.transform.position;
+        else
+            spawnPosition = m_wallSensorL2.transform.position;
 
-        // if (m_slideDust != null)
-        // {
-        //     // Set correct arrow spawn position
-        //     GameObject dust = Instantiate(m_slideDust, spawnPosition, gameObject.transform.localRotation) as GameObject;
-        //     // Turn arrow in correct direction
-        //     dust.transform.localScale = new Vector3(m_facingDirection, 1, 1);
-        // }
+        Debug.Log("animation Events....");
+        if (m_slideDust != null)
+        {
+            // Set correct arrow spawn position
+            GameObject dust = Instantiate(m_slideDust, spawnPosition, gameObject.transform.localRotation) as GameObject;
+            // Turn arrow in correct direction
+            dust.transform.localScale = new Vector3(m_facingDirection, 1, 1);
+        }
     }
 
+    // Animation Events
+    // HeroKnight_Hurt  Called in slide animation
+     //受到攻击时调用
+        public bool OnGetDamage()
+        {
+            HP -= 1;
+            Debug.Log("OnGetDamage.....");
+            // for (int i = 0;i< onDamageMessageReceivers.Count; i++)//向接收者传递信息
+            // {
+            //     var receiver = onDamageMessageReceivers[i] as MyMessage.IMessageReceiver;
+            //     receiver.OnMessageReceive(type,data.damager,data);
+            // }
+            return true;
+        }
+
+         public void OnMessageReceive(MesssageType type, object sender, object data)//实现消息接收的接口
+        {
+            // switch (type)
+            // {
+            //     case MesssageType.Damage:
+            //         {
+            //             MyDamageable.DamageMessage m_data = (MyDamageable.DamageMessage)data;
+            //             Damaged(sender,m_data);
+            //         }
+            //         break;
+            //     case MesssageType.Death:
+            //         {
+            //             MyDamageable.DamageMessage m_data = (MyDamageable.DamageMessage)data;
+            //             Death(sender,m_data);
+            //         }
+            //         break;
+            //     case MesssageType.Respawn://这个没什么必要
+            //         break;
+            // }
+            return;
+        }
+        // private void Damaged(object sender, MyDamageable.DamageMessage data)
+        // {
+        //     if(isDeath || m_damage.CurHitPoint <= 0)//无敌状态或者死亡状态
+        //     {
+        //         return;
+        //     }
+        //     //伤害来源进行省略
+        //     Vector3 direction = data.damageSource - transform.position;
+        //     direction = transform.InverseTransformPoint(direction);
+        //     direction.y = 0f;
+        //     print("x :" + direction.x + "y:" + direction.z);
+        //     m_animator.SetFloat(hashOfHitFromX,direction.normalized.x);
+        //     m_animator.SetFloat(hashOfHitFromY,direction.normalized.z);
+        //     m_animator.SetTrigger(hashOfHurt);//设置受伤trigger
+        //     if (m_HurtAudioPlayer)
+        //         m_HurtAudioPlayer.PlayAudioRandomly(null);
+        // }
+        // private void Death(object sender,MyDamageable.DamageMessage data)
+        // {
+        //     isDeath = true; //死亡
+        //     m_DeathAudioPlayer.PlayAudioRandomly(null);//死亡音效
+        //     m_animator.SetTrigger(hashOfDeath);//设置死亡trigger
+        //     m_animator.ResetTrigger(hashOfHurt);//重置受伤trigger，避免状态重叠
+        // }
+}
 }
