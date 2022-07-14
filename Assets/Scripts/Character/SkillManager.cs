@@ -1,17 +1,17 @@
 using System.Collections;
 using System.Collections.Generic;
-using TestSkillSystem;
+using SkillSystem;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
 
 namespace PlayerCharacter
 {
 //技能管理器
-public class CharacterSkillManager : MonoBehaviour
+public class SkillManager : MonoBehaviour
 {
     private Transform m_Transform;
 
-    private CharacterStateData m_PlayerData;
+    private PlayerMain m_PlayerData;
 
     private SkillData m_NowSKill;
     //技能列表
@@ -21,7 +21,7 @@ public class CharacterSkillManager : MonoBehaviour
     private void Awake()
     {
         m_Transform = GetComponent<Transform>();
-        m_PlayerData = GetComponent<CharacterStateData>();
+        m_PlayerData = GetComponent<PlayerMain>();
         m_Deployer = GetComponent<SkillDeployer>();
     }
 

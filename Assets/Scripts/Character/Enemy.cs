@@ -5,7 +5,6 @@ using System.Collections;
 
 namespace PlayerCharacter
 {
-    
 public class Enemy : MonoBehaviour {
     public enum EnemyState 
     {
@@ -14,9 +13,26 @@ public class Enemy : MonoBehaviour {
         attack,
         death,
     }
-    [SerializeField] float      m_speed = 4.0f;
-    [SerializeField] float      m_jumpForce = 7.5f;
+    public float HP = 100;
+     public float SP = 100;
+     public float BeAttack = 10;//攻击力
+    [SerializeField] public float      m_speed = 8.0f;
+    [SerializeField] public float      m_jumpForce = 7.5f;
+    [SerializeField] public float      m_rollForce = 6.0f;
+    [SerializeField] public bool       m_noBlood = false;
 
+    private int                 m_facingDirection = 1;
+
+
+    public int facingDirection
+    {
+        get { return m_facingDirection; }
+        set
+        {
+            m_facingDirection = value;
+        }
+    }
+    
     private Animator            m_animator;
     private Rigidbody2D         m_body2d;
     private Sensor_Bandit       m_groundSensor;
@@ -24,19 +40,19 @@ public class Enemy : MonoBehaviour {
     private bool                m_combatIdle = false;
     private bool                m_isDead = false;
     public EnemyState CurrentState = EnemyState.idle;
-    private NavMeshAgent        m_agent;
     private Transform           m_player;
     public float attackTime = .5f;   //设置定时器时间 3秒攻击一次
     private float attackCounter = 0; //计时器变量
     public float attackDistance = 2;//这是攻击目标的距离，
-    public float attackMoveDistance = 10;//寻路的目标距离
+    public float attackMoveDistance = 8;//寻路的目标距离
+
+    public Transform m_attackTrigger;
     // Start is called before the first frame update
     // Use this for initialization
     void Start () {
         m_animator = GetComponent<Animator>();
         m_body2d = GetComponent<Rigidbody2D>();
         m_groundSensor = transform.Find("GroundSensor").GetComponent<Sensor_Bandit>();
-        m_agent = GetComponent<NavMeshAgent>();
         m_player = GameObject.FindWithTag("Player").transform;
     }
 	
@@ -125,13 +141,24 @@ public class Enemy : MonoBehaviour {
             m_grounded = false;
             m_animator.SetBool("Grounded", m_grounded);
         }
+
+        int direction = 1;// 玩家在敌人的右边
+        if (m_player.position.x < transform.position.x)
+        {
+            direction = -1;// 玩家在敌人的左边
+            transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
+        }else {
+            direction = 1;
+            transform.localScale = new Vector3(-1.0f, 1.0f, 1.0f);
+        }
+
         float distance = Vector3.Distance(m_player.position, transform.position);
         switch (CurrentState)
         {
             case EnemyState.idle:
                 // idle
                 m_animator.SetInteger("AnimState", 0);
-
+                // m_attackTrigger.gameObject.SetActive(false);
                 if (distance > attackDistance  && distance <= attackMoveDistance)
                 {
                     CurrentState = EnemyState.run;
@@ -143,16 +170,6 @@ public class Enemy : MonoBehaviour {
                 break; 
             case EnemyState.run:
                 attackCounter = attackTime;//每次移动到最小攻击距离时就会立即攻击
-                int direction = 1;// 玩家在敌人的右边
-                if (m_player.position.x < transform.position.x)
-                {
-                    direction = -1;// 玩家在敌人的左边
-                    transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
-                }else {
-                    direction = 1;
-                    transform.localScale = new Vector3(-1.0f, 1.0f, 1.0f);
-                }
-
                 m_body2d.velocity = new Vector2(direction * m_speed, m_body2d.velocity.y);
                 m_animator.SetFloat("AirSpeed", m_body2d.velocity.y);
 
@@ -174,12 +191,15 @@ public class Enemy : MonoBehaviour {
                     m_animator.SetTrigger("Attack");
                     attackCounter = 0;
                     CurrentState = EnemyState.idle;
+                    m_attackTrigger.localPosition = new Vector2(0.3f*direction, 1.0f);
+                    m_attackTrigger.gameObject.SetActive(true);
                 }
                 break;
             case EnemyState.death:
                 m_isDead = !m_isDead;
                 break;
         }
+
 
     }
 }

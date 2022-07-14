@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-
-namespace TestSkillSystem
+using PlayerCharacter;
+namespace SkillSystem
 {
     /// <summary>
     /// 攻击类型 群体/单体

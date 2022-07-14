@@ -3,15 +3,20 @@ using System.Collections;
 
 namespace PlayerCharacter
 {
-public class CharacterStateData : MonoBehaviour, IMessageReceiver {
+public class PlayerMain: MonoBehaviour  {
 
-     public float HP = 100;
+    public float HP = 100;
      public float SP = 100;
      public float BeAttack = 10;//攻击力
-    [SerializeField] float      m_speed = 8.0f;
-    [SerializeField] float      m_jumpForce = 7.5f;
-    [SerializeField] float      m_rollForce = 6.0f;
-    [SerializeField] bool       m_noBlood = false;
+    [SerializeField] public float      m_speed = 8.0f;
+    [SerializeField] public float      m_jumpForce = 7.5f;
+    [SerializeField] public float      m_rollForce = 6.0f;
+    [SerializeField] public bool       m_noBlood = false;
+
+    private int                 m_facingDirection = 1;
+
+
+   
     [SerializeField] GameObject m_slideDust;
 
     private Animator            m_animator;
@@ -24,14 +29,12 @@ public class CharacterStateData : MonoBehaviour, IMessageReceiver {
     private bool                m_isWallSliding = false;
     private bool                m_grounded = false;
     private bool                m_rolling = false;
-    private int                 m_facingDirection = 1;
     private int                 m_currentAttack = 0;
     private float               m_timeSinceAttack = 0.0f;
     private float               m_delayToIdle = 0.0f;
     private float               m_rollDuration = 8.0f / 14.0f;
     private float               m_rollCurrentTime;
-
-    public int facingDirection
+     public int facingDirection
     {
         get { return m_facingDirection; }
         set
@@ -39,7 +42,7 @@ public class CharacterStateData : MonoBehaviour, IMessageReceiver {
             m_facingDirection = value;
         }
     }
-
+    
     // Use this for initialization
     void Start ()
     {
@@ -206,66 +209,6 @@ public class CharacterStateData : MonoBehaviour, IMessageReceiver {
             dust.transform.localScale = new Vector3(m_facingDirection, 1, 1);
         }
     }
-
-    // Animation Events
-    // HeroKnight_Hurt  Called in slide animation
-     //受到攻击时调用
-        public bool OnGetDamage()
-        {
-            HP -= 1;
-            Debug.Log("OnGetDamage.....");
-            // for (int i = 0;i< onDamageMessageReceivers.Count; i++)//向接收者传递信息
-            // {
-            //     var receiver = onDamageMessageReceivers[i] as MyMessage.IMessageReceiver;
-            //     receiver.OnMessageReceive(type,data.damager,data);
-            // }
-            return true;
-        }
-
-         public void OnMessageReceive(MesssageType type, object sender, object data)//实现消息接收的接口
-        {
-            // switch (type)
-            // {
-            //     case MesssageType.Damage:
-            //         {
-            //             MyDamageable.DamageMessage m_data = (MyDamageable.DamageMessage)data;
-            //             Damaged(sender,m_data);
-            //         }
-            //         break;
-            //     case MesssageType.Death:
-            //         {
-            //             MyDamageable.DamageMessage m_data = (MyDamageable.DamageMessage)data;
-            //             Death(sender,m_data);
-            //         }
-            //         break;
-            //     case MesssageType.Respawn://这个没什么必要
-            //         break;
-            // }
-            return;
-        }
-        // private void Damaged(object sender, MyDamageable.DamageMessage data)
-        // {
-        //     if(isDeath || m_damage.CurHitPoint <= 0)//无敌状态或者死亡状态
-        //     {
-        //         return;
-        //     }
-        //     //伤害来源进行省略
-        //     Vector3 direction = data.damageSource - transform.position;
-        //     direction = transform.InverseTransformPoint(direction);
-        //     direction.y = 0f;
-        //     print("x :" + direction.x + "y:" + direction.z);
-        //     m_animator.SetFloat(hashOfHitFromX,direction.normalized.x);
-        //     m_animator.SetFloat(hashOfHitFromY,direction.normalized.z);
-        //     m_animator.SetTrigger(hashOfHurt);//设置受伤trigger
-        //     if (m_HurtAudioPlayer)
-        //         m_HurtAudioPlayer.PlayAudioRandomly(null);
-        // }
-        // private void Death(object sender,MyDamageable.DamageMessage data)
-        // {
-        //     isDeath = true; //死亡
-        //     m_DeathAudioPlayer.PlayAudioRandomly(null);//死亡音效
-        //     m_animator.SetTrigger(hashOfDeath);//设置死亡trigger
-        //     m_animator.ResetTrigger(hashOfHurt);//重置受伤trigger，避免状态重叠
-        // }
+   
 }
 }
