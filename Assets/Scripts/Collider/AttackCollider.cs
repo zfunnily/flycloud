@@ -22,7 +22,7 @@ public class AttackCollider : MonoBehaviour
 
     private void OnTriggerEnter2D (Collider2D collision)
     {
-         Debug.Log("enter: "+collision.tag);
+        //  Debug.Log("enter: "+collision.tag);
         if (collision == null ) return;
         if (m_hitmanager == null ) return;
 
