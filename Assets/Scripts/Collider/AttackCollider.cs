@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using PlayerCharacter;
+using SkillSystem;
 
 public class AttackCollider : MonoBehaviour
 {
@@ -22,14 +23,25 @@ public class AttackCollider : MonoBehaviour
 
     private void OnTriggerEnter2D (Collider2D collision)
     {
-        //  Debug.Log("enter: "+collision.tag);
+         Debug.Log("enter: "+collision.tag);
         if (collision == null ) return;
         if (m_hitmanager == null ) return;
 
-        if (collision.tag != "" && collision.tag != m_hitmanager.tag && collision.tag != "Untagged")
+        if (collision.tag != "" && collision.tag != "Untagged")
         {
-            CharacterData gameObject = GameObject.FindGameObjectWithTag(collision.tag).GetComponent<CharacterData>();
-            if (gameObject != null) gameObject.Damage();
+            if (collision.tag != m_hitmanager.tag  )
+            {
+                if (collision.tag == "AttackCollider")
+                {
+                    SkillDeployer sd= GetComponent<SkillDeployer>();
+                    if (sd!= null) sd.TurnFace();
+                }
+                else 
+                {
+                    CharacterData gameObject = GameObject.FindGameObjectWithTag(collision.tag).GetComponent<CharacterData>();
+                    if (gameObject != null) gameObject.Damage();
+                }
+            }
         }
     }
 

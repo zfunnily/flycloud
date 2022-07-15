@@ -13,6 +13,7 @@ namespace SkillSystem
         private CharacterData m_PlayerData;
         private AttackCollider attackCollider;
         private SkillData m_SkillData;
+        public int m_facingDirection;
 
         public SkillData skillData
         {
@@ -54,6 +55,11 @@ namespace SkillSystem
         //释放方式
         //技能管理器调用，有子类实现，定义具体释放策略
         public abstract void DeploySkill();
+
+        public void TurnFace()
+        {
+            m_facingDirection *=-1;
+        }
     }
     
 }

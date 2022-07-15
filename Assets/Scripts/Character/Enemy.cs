@@ -150,20 +150,20 @@ public class Enemy : CharacterData {
                 }
                 break; 
             case EnemyState.run:
-                // attackCounter = attackTime;//每次移动到最小攻击距离时就会立即攻击
-                // m_body2d.velocity = new Vector2(direction * m_speed, m_body2d.velocity.y);
-                // m_animator.SetFloat("AirSpeed", m_body2d.velocity.y);
+                attackCounter = attackTime;//每次移动到最小攻击距离时就会立即攻击
+                m_body2d.velocity = new Vector2(direction * m_speed, m_body2d.velocity.y);
+                m_animator.SetFloat("AirSpeed", m_body2d.velocity.y);
 
-                // m_animator.SetInteger("AnimState", 2);//移动的时候播放跑步动画
+                m_animator.SetInteger("AnimState", 2);//移动的时候播放跑步动画
 
-                // if (distance > attackMoveDistance)
-                // {
-                //     CurrentState = EnemyState.idle;
-                // }
-                // if (distance < attackDistance )
-                // {
-                //     CurrentState = EnemyState.attack;
-                // }
+                if (distance > attackMoveDistance)
+                {
+                    CurrentState = EnemyState.idle;
+                }
+                if (distance < attackDistance )
+                {
+                    CurrentState = EnemyState.attack;
+                }
                 break;
             case EnemyState.attack:
                 attackCounter += Time.deltaTime;
