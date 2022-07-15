@@ -10,7 +10,8 @@ namespace SkillSystem
         {
             //其他策略 
             //skillData.owner.transform.position=new Vector3(skillData.owner.transform.position.x,skillData.owner.transform.position.y,skillData.owner.transform.position.z);
-            facingDirection = skillData.owner.GetComponent<CharacterData>().facingDirection;
+            facingDirection = skillData.owner.GetComponent<PlayerMain>().facingDirection;
+            transform.position += transform.up;
         }
 
         private void Update() {

@@ -7,12 +7,11 @@ public class AttackCollider : MonoBehaviour
 {
     /// <summary>
     /// </summary>
-    public HitManager m_hitmanager;
+    public CharacterData m_hitmanager;
 
     // Start is called before the first frame update
     void Start()
     {
-        
     }
 
     // Update is called once per frame
@@ -21,20 +20,21 @@ public class AttackCollider : MonoBehaviour
         
     }
 
-    private void OnTriggerEnter2D(Collider2D collision)
+    private void OnTriggerEnter2D (Collider2D collision)
     {
-        if(collision.tag == "Player")
+         Debug.Log("enter: "+collision.tag);
+        if (collision == null ) return;
+        if (m_hitmanager == null ) return;
+
+        if (collision.tag != "" && collision.tag != m_hitmanager.tag && collision.tag != "Untagged")
         {
-            m_hitmanager.AttackTrigger = true;
+            CharacterData gameObject = GameObject.FindGameObjectWithTag(collision.tag).GetComponent<CharacterData>();
+            if (gameObject != null) gameObject.Damage();
         }
     }
 
-    private void OnTriggerExit2D(Collider2D collision)
-    {
-        if (collision.tag == "Player")
-        {
-            m_hitmanager.AttackTrigger = false;
-        }
-    }
-
+    
+    // private void OnTriggerExit2D(Collision2D collision)
+    // {
+    // }
 }

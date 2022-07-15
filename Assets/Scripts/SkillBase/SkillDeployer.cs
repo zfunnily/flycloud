@@ -11,6 +11,7 @@ namespace SkillSystem
     public abstract class SkillDeployer : MonoBehaviour
     {
         private CharacterData m_PlayerData;
+        private AttackCollider attackCollider;
         private SkillData m_SkillData;
 
         public SkillData skillData
@@ -37,6 +38,8 @@ namespace SkillSystem
         private void InitDeployer()
         {
             //Debug.Log("go");
+            attackCollider = GetComponent<AttackCollider>();
+            attackCollider.m_hitmanager = m_PlayerData;
         }
         
         //执行算法对象

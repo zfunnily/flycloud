@@ -77,6 +77,7 @@ public class SkillManager : MonoBehaviour
         if (skillDeployer == null) {
             Debug.Log("SkillDeployer is nil");
         }
+        skillDeployer.playerData = m_PlayerData;
         skillDeployer.skillData = data;
         skillDeployer.DeploySkill();
         
@@ -129,7 +130,7 @@ public class SkillManager : MonoBehaviour
             yield return new WaitForSeconds(1);
             data.coolRemain--;
         }
-        Debug.Log("技能CD完毕over");
+        // Debug.Log("技能CD完毕over");
     }
 }
 }

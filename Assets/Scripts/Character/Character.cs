@@ -3,7 +3,7 @@ using System.Collections;
 
 namespace PlayerCharacter
 {
-public class CharacterData : MonoBehaviour{
+public abstract class CharacterData : MonoBehaviour{
 
      public float HP = 100;
      public float SP = 100;
@@ -24,7 +24,7 @@ public class CharacterData : MonoBehaviour{
             m_facingDirection = value;
         }
     }
-
+    public abstract void Damage();
 
 }
 }

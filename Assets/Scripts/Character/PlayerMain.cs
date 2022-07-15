@@ -3,20 +3,8 @@ using System.Collections;
 
 namespace PlayerCharacter
 {
-public class PlayerMain: MonoBehaviour  {
+public class PlayerMain: CharacterData {
 
-    public float HP = 100;
-     public float SP = 100;
-     public float BeAttack = 10;//攻击力
-    [SerializeField] public float      m_speed = 8.0f;
-    [SerializeField] public float      m_jumpForce = 7.5f;
-    [SerializeField] public float      m_rollForce = 6.0f;
-    [SerializeField] public bool       m_noBlood = false;
-
-    private int                 m_facingDirection = 1;
-
-
-   
     [SerializeField] GameObject m_slideDust;
 
     private Animator            m_animator;
@@ -34,14 +22,8 @@ public class PlayerMain: MonoBehaviour  {
     private float               m_delayToIdle = 0.0f;
     private float               m_rollDuration = 8.0f / 14.0f;
     private float               m_rollCurrentTime;
-     public int facingDirection
-    {
-        get { return m_facingDirection; }
-        set
-        {
-            m_facingDirection = value;
-        }
-    }
+    public Transform m_attackTrigger;
+
     
     // Use this for initialization
     void Start ()
@@ -60,6 +42,7 @@ public class PlayerMain: MonoBehaviour  {
     {
         // Increase timer that controls attack combo
         m_timeSinceAttack += Time.deltaTime;
+        // m_attackTrigger.gameObject.SetActive(false); 
 
         // Increase timer that checks roll duration
         if(m_rolling)
@@ -90,13 +73,13 @@ public class PlayerMain: MonoBehaviour  {
         if (inputX > 0)
         {
             GetComponent<SpriteRenderer>().flipX = false;
-            m_facingDirection = 1;
+            facingDirection = 1;
         }
             
         else if (inputX < 0)
         {
             GetComponent<SpriteRenderer>().flipX = true;
-            m_facingDirection = -1;
+            facingDirection = -1;
         }
 
         // Move
@@ -157,7 +140,7 @@ public class PlayerMain: MonoBehaviour  {
         {
             m_rolling = true;
             m_animator.SetTrigger("Roll");
-            m_body2d.velocity = new Vector2(m_facingDirection * m_rollForce, m_body2d.velocity.y);
+            m_body2d.velocity = new Vector2(facingDirection * m_rollForce, m_body2d.velocity.y);
         }
             
 
@@ -187,6 +170,14 @@ public class PlayerMain: MonoBehaviour  {
                 if(m_delayToIdle < 0)
                     m_animator.SetInteger("AnimState", 0);
         }
+
+        if (m_animator.GetCurrentAnimatorStateInfo(0).IsName("Attack" + m_currentAttack))
+        {
+            m_attackTrigger.localPosition = new Vector2(0.84f*facingDirection, .65f);
+            m_attackTrigger.gameObject.SetActive(true); 
+        }else {
+            m_attackTrigger.gameObject.SetActive(false); 
+        }
     }
 
     // Animation Events
@@ -195,7 +186,7 @@ public class PlayerMain: MonoBehaviour  {
     {
         Vector3 spawnPosition;
 
-        if (m_facingDirection == 1)
+        if (facingDirection == 1)
             spawnPosition = m_wallSensorR2.transform.position;
         else
             spawnPosition = m_wallSensorL2.transform.position;
@@ -206,9 +197,12 @@ public class PlayerMain: MonoBehaviour  {
             // Set correct arrow spawn position
             GameObject dust = Instantiate(m_slideDust, spawnPosition, gameObject.transform.localRotation) as GameObject;
             // Turn arrow in correct direction
-            dust.transform.localScale = new Vector3(m_facingDirection, 1, 1);
+            dust.transform.localScale = new Vector3(facingDirection, 1, 1);
         }
     }
-   
+   public override void Damage()
+   {
+    m_animator.SetTrigger("Hurt");
+   }
 }
 }
