@@ -48,13 +48,13 @@ namespace SkillSystem
         public float attackAngle;
 
         /// <summary>攻击目标Tags</summary>    
-        public List<string> attackTargetTags ;
+        // public List<string> attackTargetTags ;
 
         /// <summary>攻击目标对象(数组)</summary>    
-        public List<Transform> attackTargets;
+        // public List<Transform> attackTargets;
        [Tooltip("技能影响类型")]
         /// <summary>技能影响类型</summary>    
-        public List<string> impactype ;
+        // public List<string> impactype ;
 
         /// <summary>连击的下一个技能ID</summary>
         public int nextBatterid;

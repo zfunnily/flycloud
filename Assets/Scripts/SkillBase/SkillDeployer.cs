@@ -31,6 +31,8 @@ namespace SkillSystem
             set
             {
                 m_PlayerData = value;
+                attackCollider = GetComponent<AttackCollider>();
+                attackCollider.m_player = m_PlayerData;
             }
         }
 
@@ -39,8 +41,6 @@ namespace SkillSystem
         private void InitDeployer()
         {
             //Debug.Log("go");
-            attackCollider = GetComponent<AttackCollider>();
-            attackCollider.m_player = m_PlayerData;
         }
         
         //执行算法对象

@@ -26597,7 +26597,7 @@ MonoBehaviour:
     atkInterval: 0
     owner: {fileID: 0}
     prefabName: 
-    skillPrefab: {fileID: 0}
+    skillPrefab: {fileID: 2625288405912653625, guid: 4689b351e48a96244bc8482b329d418f, type: 3}
     aniamtorName: 
     hitFxName: 
     hitFxPrefab: {fileID: 0}
@@ -26629,7 +26629,6 @@ MonoBehaviour:
     attackType: 0
     selectorType: 0
   attackTime: 1
-  attackDistance: 1
 --- !u!4 &351674194324347877
 Transform:
   m_ObjectHideFlags: 0
