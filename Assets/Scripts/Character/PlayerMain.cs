@@ -22,8 +22,6 @@ public class PlayerMain: CharacterData {
     private float               m_delayToIdle = 0.0f;
     private float               m_rollDuration = 8.0f / 14.0f;
     private float               m_rollCurrentTime;
-    public Transform m_attackTrigger;
-
     
     // Use this for initialization
     void Start ()
@@ -173,7 +171,7 @@ public class PlayerMain: CharacterData {
 
         if (m_animator.GetCurrentAnimatorStateInfo(0).IsName("Attack" + m_currentAttack))
         {
-            m_attackTrigger.localPosition = new Vector2(0.84f*facingDirection, .65f);
+            m_attackTrigger.localPosition = new Vector2(0.6f*facingDirection, .66f);
             m_attackTrigger.gameObject.SetActive(true); 
         }else {
             m_attackTrigger.gameObject.SetActive(false); 

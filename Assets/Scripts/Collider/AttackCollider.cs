@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using PlayerCharacter;
 using SkillSystem;
+using CameraNS;
 
 public class AttackCollider : MonoBehaviour
 {
     /// <summary>
     /// </summary>
-    public CharacterData m_hitmanager;
+    public CharacterData m_player;
 
     // Start is called before the first frame update
     void Start()
@@ -23,24 +24,44 @@ public class AttackCollider : MonoBehaviour
 
     private void OnTriggerEnter2D (Collider2D collision)
     {
-         Debug.Log("enter: "+collision.tag);
         if (collision == null ) return;
-        if (m_hitmanager == null ) return;
+        // if (m_player == null ) return;
 
-        if (collision.tag != "" && collision.tag != "Untagged")
+
+        string gameTag = this.gameObject.tag;
+        if ((gameTag == "PlayerCollider" && collision.tag == "Enemy") || 
+            (gameTag == "EnemyCollider" && collision.tag == "Player"))  
         {
-            if (collision.tag != m_hitmanager.tag  )
+            CharacterData gameObject = GameObject.FindGameObjectWithTag(collision.tag).GetComponent<CharacterData>();
+            if (gameObject != null) gameObject.Damage();
+        }
+
+
+        // 1. 如何判断近战攻击击中了子弹？
+        // 2. 如何将弹反后的子弹视为由玩家发动的攻击？
+        // 3. https://www.cnblogs.com/OtusScops/p/14710506.html
+        if ((gameTag == "BulletCollider")) // 如果是子弹
+        {
+            if(collision.tag == "PlayerCollider") // 子弹与player碰撞
             {
-                if (collision.tag == "AttackCollider")
-                {
-                    SkillDeployer sd= GetComponent<SkillDeployer>();
-                    if (sd!= null) sd.TurnFace();
-                }
-                else 
-                {
-                    CharacterData gameObject = GameObject.FindGameObjectWithTag(collision.tag).GetComponent<CharacterData>();
-                    if (gameObject != null) gameObject.Damage();
-                }
+               this.gameObject.tag = "PlayerAttack"; // 改变标签
+                GameObject.FindWithTag("MainCamera").GetComponent<ShakeCamera>().enabled = true; // 震动屏幕
+                SkillDeployer sd = GetComponent<SkillDeployer>();
+                if (sd != null) sd.TurnFace();
+            }
+            if (collision.tag == "Player") 
+            {
+               CharacterData gameObject = GameObject.FindGameObjectWithTag(collision.tag).GetComponent<CharacterData>();
+                if (gameObject != null) gameObject.Damage(); 
+                Destroy(this.gameObject);
+            }
+        }else if (gameTag == "PlayerAttack")  // 由 player 反弹回来的子弹
+        {
+            if (collision.tag == "Enemy")
+            {
+               CharacterData gameObject = GameObject.FindGameObjectWithTag(collision.tag).GetComponent<CharacterData>();
+                if (gameObject != null) gameObject.Damage(); 
+                Destroy(this.gameObject);
             }
         }
     }

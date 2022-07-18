@@ -27,7 +27,7 @@ public class Enemy : CharacterData {
     public float attackDistance = 1;//这是攻击目标的距离，
     public float attackMoveDistance = 8;//寻路的目标距离
 
-    public Transform m_attackTrigger;
+
     // Start is called before the first frame update
     // Use this for initialization
     void Start () {
@@ -123,13 +123,12 @@ public class Enemy : CharacterData {
             m_animator.SetBool("Grounded", m_grounded);
         }
 
-        int direction = 1;// 玩家在敌人的右边
         if (m_player.position.x < transform.position.x)
         {
-            direction = -1;// 玩家在敌人的左边
+            facingDirection = -1;// 玩家在敌人的左边
             transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
         }else {
-            direction = 1;
+            facingDirection = 1;
             transform.localScale = new Vector3(-1.0f, 1.0f, 1.0f);
         }
 
@@ -150,20 +149,20 @@ public class Enemy : CharacterData {
                 }
                 break; 
             case EnemyState.run:
-                attackCounter = attackTime;//每次移动到最小攻击距离时就会立即攻击
-                m_body2d.velocity = new Vector2(direction * m_speed, m_body2d.velocity.y);
-                m_animator.SetFloat("AirSpeed", m_body2d.velocity.y);
+                // attackCounter = attackTime;//每次移动到最小攻击距离时就会立即攻击
+                // m_body2d.velocity = new Vector2(facingDirection * m_speed, m_body2d.velocity.y);
+                // m_animator.SetFloat("AirSpeed", m_body2d.velocity.y);
 
-                m_animator.SetInteger("AnimState", 2);//移动的时候播放跑步动画
+                // m_animator.SetInteger("AnimState", 2);//移动的时候播放跑步动画
 
-                if (distance > attackMoveDistance)
-                {
-                    CurrentState = EnemyState.idle;
-                }
-                if (distance < attackDistance )
-                {
-                    CurrentState = EnemyState.attack;
-                }
+                // if (distance > attackMoveDistance)
+                // {
+                //     CurrentState = EnemyState.idle;
+                // }
+                // if (distance < attackDistance )
+                // {
+                //     CurrentState = EnemyState.attack;
+                // }
                 break;
             case EnemyState.attack:
                 attackCounter += Time.deltaTime;
@@ -180,7 +179,7 @@ public class Enemy : CharacterData {
         }
         if (m_animator.GetCurrentAnimatorStateInfo(0).IsName("Attack"))
         {
-            m_attackTrigger.localPosition = new Vector2(0.44f*direction, 0.22f);
+            m_attackTrigger.localPosition = new Vector2(0.52f*-1, 0.66f);
             m_attackTrigger.gameObject.SetActive(true);
         }else {
             m_attackTrigger.gameObject.SetActive(false); 

@@ -2,6 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+namespace CameraNS
+{
+
 public class FollowTarget: MonoBehaviour
 {
     private Transform player;
@@ -15,4 +18,6 @@ public class FollowTarget: MonoBehaviour
     void Update() {
         this.transform.position = player.position - offset;
     }
+}
+
 }

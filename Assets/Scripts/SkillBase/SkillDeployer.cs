@@ -40,7 +40,7 @@ namespace SkillSystem
         {
             //Debug.Log("go");
             attackCollider = GetComponent<AttackCollider>();
-            attackCollider.m_hitmanager = m_PlayerData;
+            attackCollider.m_player = m_PlayerData;
         }
         
         //执行算法对象

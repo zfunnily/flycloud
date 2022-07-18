@@ -12,6 +12,7 @@ public abstract class CharacterData : MonoBehaviour{
     [SerializeField] public float      m_jumpForce = 7.5f;
     [SerializeField] public float      m_rollForce = 6.0f;
     [SerializeField] public bool       m_noBlood = false;
+    public Transform m_attackTrigger;
 
     private int                 m_facingDirection = 1;
 

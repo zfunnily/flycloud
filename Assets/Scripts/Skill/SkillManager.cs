@@ -1,17 +1,17 @@
 using System.Collections;
 using System.Collections.Generic;
-using SkillSystem;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
+using PlayerCharacter;
 
-namespace PlayerCharacter
+namespace SkillSystem
 {
 //技能管理器
-public class SkillManager : MonoBehaviour
+public abstract  class SkillManager : MonoBehaviour
 {
     private Transform m_Transform;
 
-    private PlayerMain m_PlayerData;
+    private CharacterData m_PlayerData;
 
     private SkillData m_NowSKill;
     //技能列表
@@ -21,7 +21,7 @@ public class SkillManager : MonoBehaviour
     private void Awake()
     {
         m_Transform = GetComponent<Transform>();
-        m_PlayerData = GetComponent<PlayerMain>();
+        m_PlayerData = GetComponent<CharacterData>();
         m_Deployer = GetComponent<SkillDeployer>();
     }
 
@@ -35,26 +35,11 @@ public class SkillManager : MonoBehaviour
        
     }
   
-    private void Update()
+    public abstract void Update();
+
+    public void useSkill(int id)
     {
-        if (Input.GetKeyDown(KeyCode.Alpha1))
-        {
-           useSkill(1);
-        }
-
-        else if (Input.GetKeyDown(KeyCode.Alpha2))
-        {
-           useSkill(2);
-        }
-
-        else if (Input.GetKeyDown(KeyCode.Alpha3))
-        {
-           useSkill(3);
-        }
-    }
-
-    private void useSkill(int id)
-    {
+        // Debug.Log("id: " + id);
         m_NowSKill = PrepareSkill(id);
         if (m_NowSKill == null)
         {

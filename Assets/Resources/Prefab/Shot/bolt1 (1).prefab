@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: 2143902771124131639}
   m_Layer: 0
   m_Name: bolt1 (1)
-  m_TagString: Untagged
+  m_TagString: BulletCollider
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -120,7 +120,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cb95ece4be7bebd41a0c2fda7725b720, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  facingDirection: 0
+  m_facingDirection: 0
 --- !u!114 &369629566269080079
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -133,7 +133,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b4f635457ba51874d88ef3c99420c668, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_hitmanager: {fileID: 0}
+  m_player: {fileID: 0}
 --- !u!61 &2143902771124131639
 BoxCollider2D:
   m_ObjectHideFlags: 0
