@@ -189,7 +189,7 @@ public class PlayerMain: CharacterData {
         else
             spawnPosition = m_wallSensorL2.transform.position;
 
-        Debug.Log("animation Events....");
+        // Debug.Log("animation Events....");
         if (m_slideDust != null)
         {
             // Set correct arrow spawn position

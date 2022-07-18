@@ -26628,7 +26628,7 @@ MonoBehaviour:
     level: 0
     attackType: 0
     selectorType: 0
-  attackTime: 3
+  attackTime: 1
   attackDistance: 1
 --- !u!4 &351674194324347877
 Transform:

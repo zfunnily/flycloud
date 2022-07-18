@@ -8,9 +8,8 @@ namespace PlayerCharacter
 //技能管理器
 public class EnemySkill: SkillManager
 {
-    public float attackTime = 2.0f;   // 设置定时器时间 3秒攻击一次
+    public float attackTime = 1.0f;   // 设置定时器时间 3秒攻击一次
     private float attackCounter = 0; // 计时器变量
-    public float attackDistance = 1;// 这是攻击目标的距离，
     
     public override void Update()
     {
