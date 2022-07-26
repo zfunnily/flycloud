@@ -198,9 +198,27 @@ public class PlayerMain: CharacterData {
             dust.transform.localScale = new Vector3(facingDirection, 1, 1);
         }
     }
-   public override void Damage()
+   public override bool Damage()
    {
     m_animator.SetTrigger("Hurt");
+    return true;
    }
+
+    public override bool Dodge()
+    {
+        if (m_animator.GetCurrentAnimatorStateInfo(0).IsName("Roll"))
+        {
+            return true;
+        }
+        return false;
+    }
+    public override bool Block()
+    {
+        if (m_animator.GetCurrentAnimatorStateInfo(0).IsName("Block") || m_animator.GetCurrentAnimatorStateInfo(0).IsName("Idle Block"))
+        {
+            return true;
+        }
+        return false;
+    }
 }
 }

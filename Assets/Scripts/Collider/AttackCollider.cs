@@ -52,7 +52,14 @@ public class AttackCollider : MonoBehaviour
             if (collision.tag == "Player") 
             {
                CharacterData gameObject = GameObject.FindGameObjectWithTag(collision.tag).GetComponent<CharacterData>();
-                if (gameObject != null) gameObject.Damage(); 
+                if (gameObject != null) 
+                {
+                    if (gameObject.Dodge()) return;
+
+                    if (!gameObject.Block()) gameObject.Damage();
+                    
+                    
+                }
                 Destroy(this.gameObject);
             }
         }else if (gameTag == "PlayerAttack")  // 由 player 反弹回来的子弹

@@ -188,9 +188,19 @@ public class Enemy : CharacterData {
 
     }
 
-    public override void Damage()
+    public override bool Damage()
     {
         m_animator.SetTrigger("Hurt");
+        return true;
+    }
+
+    public override bool Dodge()
+    {
+        return false;
+    }
+    public override bool Block()
+    {
+        return false;
     }
 }
 

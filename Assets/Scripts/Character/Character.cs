@@ -25,7 +25,9 @@ public abstract class CharacterData : MonoBehaviour{
             m_facingDirection = value;
         }
     }
-    public abstract void Damage();
+    public abstract bool Damage();
+    public abstract bool Dodge();
+    public abstract bool Block();
 
 }
 }
