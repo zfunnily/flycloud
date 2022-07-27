@@ -14,9 +14,8 @@ public abstract class CharacterData : MonoBehaviour{
     [SerializeField] public float      m_rollForce = 6.0f;
     [SerializeField] public bool       m_noBlood = false;
     public Transform m_attackTrigger;
+    public Vector2 attackPosition = new Vector2(0,0);
     public Slider HPStrip;    // 添加血条Slider的引用
-    public float start_tween; // 缓慢掉血
-    public float end_tween;
 
     private int                 m_facingDirection = 1;
 
