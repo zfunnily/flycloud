@@ -17,6 +17,14 @@ public abstract  class SkillManager : MonoBehaviour
     //技能列表
     public List<SkillData> Skills;
     private SkillDeployer m_Deployer;
+
+    public CharacterData characterData {
+        get { return m_PlayerData; }
+        set
+        {
+            m_PlayerData= value;
+        }
+    }
     
     private void Awake()
     {

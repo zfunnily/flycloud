@@ -35,6 +35,7 @@ public class Enemy : CharacterData {
         m_body2d = GetComponent<Rigidbody2D>();
         m_groundSensor = transform.Find("GroundSensor").GetComponent<Sensor_Bandit>();
         m_player = GameObject.FindWithTag("Player").transform;
+        HPStrip.value = HPStrip.maxValue = HP;    //初始化血条
     }
 	
 	// Update is called once per frame
@@ -112,6 +113,13 @@ public class Enemy : CharacterData {
 
     
     void Update () {
+        if (this.Dead()) 
+        {
+            m_animator.SetTrigger("Death");
+            m_isDead = true;
+            Destroy(HPStrip);
+            return;
+        }
         if (!m_grounded && m_groundSensor.State()) {
         m_grounded = true;
         m_animator.SetBool("Grounded", m_grounded);
@@ -191,6 +199,8 @@ public class Enemy : CharacterData {
     public override bool Damage()
     {
         m_animator.SetTrigger("Hurt");
+        HP -= 40;
+        HPStrip.value=HP;    //适当的时候对血条执行操作
         return true;
     }
 
