@@ -29,11 +29,13 @@ public class AttackCollider : MonoBehaviour
 
 
         string gameTag = this.gameObject.tag;
+        // Debug.Log("OnTriggerEnter2D.." + gameTag + "; collision.tag: " + collision.tag);
         if ((gameTag == "PlayerCollider" && collision.tag == "Enemy") || 
             (gameTag == "EnemyCollider" && collision.tag == "Player"))  
         {
             CharacterData gameObject = GameObject.FindGameObjectWithTag(collision.tag).GetComponent<CharacterData>();
             if (gameObject != null) gameObject.Damage();
+            return;
         }
 
 

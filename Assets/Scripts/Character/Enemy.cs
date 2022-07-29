@@ -9,22 +9,23 @@ public class Enemy : CharacterData {
     public enum EnemyState 
     {
         idle,
+        ready,
         run,
         attack,
+        hurt,
         death,
         destory,
     }
     
     private Animator            m_animator;
     private Rigidbody2D         m_body2d;
-    private bool                m_isDead = false;
     public EnemyState CurrentState = EnemyState.idle;
     private Transform           m_player;
     public float attackTime = 1.0f;   //设置定时器时间 3秒攻击一次
     private float attackCounter = 0; //计时器变量
     public float attackDistance = 1;//这是攻击目标的距离，
     public float attackMoveDistance = 8;//寻路的目标距离
-
+    private float deathCounter = 0; 
 
     // Start is called before the first frame update
     // Use this for initialization
@@ -109,16 +110,28 @@ public class Enemy : CharacterData {
     // }
 
     
+    EnemyState checkAttackDistance(float distance) 
+    {
+        if (distance > attackDistance  && distance <= attackMoveDistance)
+        {
+            CurrentState = EnemyState.run;
+        }
+        if (distance < attackDistance )
+        {
+            CurrentState = EnemyState.attack;
+        }
+        return CurrentState;
+    }
     void Update () {
         
        
         if (m_player.position.x < transform.position.x)
         {
             facingDirection = -1;// 玩家在敌人的左边
-            transform.localScale = new Vector3(4.0f, 4.0f, 1.0f);
+            transform.localScale = new Vector3(5.0f, 5.0f, 1.0f);
         }else {
             facingDirection = 1;
-            transform.localScale = new Vector3(-4.0f, 4.0f, 1.0f);
+            transform.localScale = new Vector3(-5.0f, 5.0f, 1.0f);
         }
 
         float distance = Vector3.Distance(m_player.position, transform.position);
@@ -126,18 +139,14 @@ public class Enemy : CharacterData {
         {
             case EnemyState.idle:
                 // idle
+                m_attackTrigger.gameObject.SetActive(false); 
                 m_animator.SetTrigger("Idle");
-                // m_attackTrigger.gameObject.SetActive(false);
-                if (distance > attackDistance  && distance <= attackMoveDistance)
-                {
-                    CurrentState = EnemyState.run;
-                }
-                if (distance < attackDistance )
-                {
-                    CurrentState = EnemyState.attack;
-                }
+                checkAttackDistance(distance);
                 break; 
             case EnemyState.run:
+                m_attackTrigger.gameObject.SetActive(false); 
+                m_animator.SetTrigger("Run");
+
                 Vector3 direct= transform.right  * Time.deltaTime * m_speed * facingDirection;
                 transform.Translate(direct);
 
@@ -146,33 +155,49 @@ public class Enemy : CharacterData {
 
                 // m_animator.SetInteger("AnimState", 2);//移动的时候播放跑步动画
 
-                if (distance > attackMoveDistance)
-                {
-                    CurrentState = EnemyState.idle;
-                }
-                if (distance < attackDistance )
-                {
-                    CurrentState = EnemyState.attack;
-                }
-                m_attackTrigger.gameObject.SetActive(false); 
+                checkAttackDistance(distance);
+               
                 break;
             case EnemyState.attack:
                 attackCounter += Time.deltaTime;
                 if (attackCounter > attackTime)//定时器功能实现
                 {
+                    m_attackTrigger.gameObject.SetActive(true);
+                    m_animator.ResetTrigger("Idle");
                     m_animator.SetTrigger("Attack1");
                     attackCounter = 0;
-                    CurrentState = EnemyState.idle;
-                    m_attackTrigger.gameObject.SetActive(true);
                 }
+                checkAttackDistance(distance);
+                break;
+            case EnemyState.hurt:
+                m_attackTrigger.gameObject.SetActive(false);
+                // transform.Translate(transform.right * facingDirection * 4 * -1);
+                m_animator.SetTrigger("Hurt");
+
+                if (this.Dead()) CurrentState = EnemyState.death;
+                else checkAttackDistance(distance);
+
                 break;
             case EnemyState.death:
+                m_attackTrigger.gameObject.SetActive(false);
                 CurrentState = EnemyState.destory;
                 m_animator.SetTrigger("Death");
+                // transform.Translate(Vector3.up*-1 * Time.deltaTime);
+                transform.position = transform.position + new Vector3(0, -1*deathMove, 0);
+
+
+                HPStrip.gameObject.SetActive(false);
                 break;
 
             default:
-                Destroy(this.gameObject);
+                m_attackTrigger.gameObject.SetActive(false);
+
+                deathCounter += Time.deltaTime;
+                if (deathCounter > 3) Destroy(this.gameObject);
+
+                // m_animator.ResetTrigger("Death");
+                m_animator.ResetTrigger("Attack1");
+                m_animator.ResetTrigger("Idle");
                 break;
 
         }
@@ -184,14 +209,14 @@ public class Enemy : CharacterData {
 
     public override bool Damage()
     {
-        m_animator.SetTrigger("TakeHit");
         HP -= 40;
         HPStrip.value=HP;    //适当的时候对血条执行操作
         if (this.Dead()) 
         {
-            m_isDead = true;
             CurrentState = EnemyState.death;
+            return false;
         }
+        CurrentState = EnemyState.hurt;
         return true;
     }
 
