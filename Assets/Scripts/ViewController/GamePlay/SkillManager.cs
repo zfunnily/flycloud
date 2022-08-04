@@ -16,7 +16,7 @@ public abstract  class SkillManager : MonoBehaviour
     private SkillData m_NowSKill;
     //技能列表
     public List<SkillData> Skills;
-    private SkillDeployer m_Deployer;
+    private SkillSystem m_Deployer;
 
     public CharacterData characterData {
         get { return m_PlayerData; }
@@ -30,7 +30,7 @@ public abstract  class SkillManager : MonoBehaviour
     {
         m_Transform = GetComponent<Transform>();
         m_PlayerData = GetComponent<CharacterData>();
-        m_Deployer = GetComponent<SkillDeployer>();
+        m_Deployer = GetComponent<SkillSystem>();
     }
 
     private void Start()
@@ -66,13 +66,13 @@ public abstract  class SkillManager : MonoBehaviour
     {
         GameObject skill = Instantiate(data.skillPrefab, m_Transform.position, m_Transform.rotation);
         
-        SkillDeployer skillDeployer = skill.GetComponent<SkillDeployer>();
+        SkillSystem skillDeployer = skill.GetComponent<SkillSystem>();
         if (skillDeployer == null) {
             Debug.Log("SkillDeployer is nil");
         }
         skillDeployer.playerData = m_PlayerData;
-        skillDeployer.skillData = data;
-        skillDeployer.DeploySkill();
+        // skillDeployer.skillData = data;
+        // skillDeployer.DeploySkill();
         
         //定时销毁
         Destroy(skill, data.durationTime);
@@ -86,13 +86,13 @@ public abstract  class SkillManager : MonoBehaviour
     /// <returns></returns>
     public SkillData PrepareSkill(int id)
     {
-        SkillData data = Skills.Find(a => a.id == id);
+        // SkillData data = Skills.Find(a => a.id == id);
 
-        if (data != null && data.coolRemain <= 0 && m_PlayerData.SP >= data.costSp)
-        {
-            return data;
-        }
-        Debug.Log("当前技能无法释放");
+        // if (data != null && data.coolRemain <= 0 && m_PlayerData.SP >= data.costSp)
+        // {
+        //     return data;
+        // }
+        // Debug.Log("当前技能无法释放");
         return null;
     }
     /// <summary>
@@ -106,7 +106,7 @@ public abstract  class SkillManager : MonoBehaviour
     //         Debug.Log("data.skillperfab is nil :"+ data.prefabName);
     //    }
        
-       data.owner = gameObject;
+    //    data.owner = gameObject;
        
     }
 

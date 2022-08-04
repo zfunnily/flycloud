@@ -47,7 +47,7 @@ public class AttackCollider : MonoBehaviour
             {
                this.gameObject.tag = "PlayerAttack"; // 改变标签
                 // GameObject.FindWithTag("MainCamera").GetComponent<>().enabled = true; // 震动屏幕
-                SkillDeployer sd = GetComponent<SkillDeployer>();
+                SkillSystem sd = GetComponent<SkillSystem>();
                 if (sd != null) sd.TurnFace();
             }
             if (collision.tag == "Player") 

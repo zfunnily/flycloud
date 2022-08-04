@@ -17,7 +17,7 @@ namespace QFramework.FlyChess
         private Queue<DelayTask> mTaskPool = new Queue<DelayTask>();
         private LinkedList<DelayTask> mDelayTasks = new LinkedList<DelayTask>();
 
-        protected override void OnInit() => CommonMono.AddUpdateAction(OnUpdate);
+        protected override void OnInit() => Player.AddUpdateAction(OnUpdate);
 
         float ITimeSystem.CurrentSeconds => mCurrentSeconds;
         DelayTask ITimeSystem.AddDelayTask(float seconds, Action onDelayFinish, bool isContinue)

@@ -7,10 +7,11 @@ namespace QFramework.FlyChess
     public class InputSystem : AbstractSystem, IInputSystem
     {
         private DirInputEvent mDirInput = new DirInputEvent();
+        private SkillEvent mSkillEvent = new SkillEvent();
         /// <summary>
         /// 用于表示输入状态
         /// </summary>
-        private enum E_InputState { Down, Up, Hold, Null }
+        private enum E_InputState { Down, Up, Hold, Null, Skill}
         //按键集成
         private readonly KeyCode[] mUpKeys = { KeyCode.W, KeyCode.UpArrow };
         private readonly KeyCode[] mDownKeys = { KeyCode.S, KeyCode.DownArrow };
@@ -22,11 +23,29 @@ namespace QFramework.FlyChess
         /// </summary>
         private void OnUpdate()
         {
-            Debug.Log("OnUpdate move...");
             CheckMoveDir(BindableInput(mLeftKeys), BindableInput(mRightKeys), ref mDirInput.hor);
             CheckMoveDir(BindableInput(mDownKeys), BindableInput(mUpKeys), ref mDirInput.ver);
             this.SendEvent(mDirInput);
         }
+        // check skill keycode
+        private void CheckSkillKeyCode()
+        {
+            if (BindableSkillInput(Skill1))
+            {
+                mSkillEvent.ID = SkillID.LIGHTNING;
+            }
+            this.SendEvent(mSkillEvent);
+        }
+
+        private bool BindableSkillInput(KeyCode[] keys)
+        {
+            for(int i = 0; i < keys.Length; i ++)
+            {
+                if (Input.GetKeyDown(keys[i])) return true;
+            }
+            return false;
+        }
+
         /// <summary>
         /// 检测移动方向
         /// </summary>
@@ -61,6 +80,6 @@ namespace QFramework.FlyChess
             }
             return E_InputState.Null;
         }
-        protected override void OnInit() => CommonMono.AddUpdateAction(OnUpdate);
+        protected override void OnInit() => Player.AddUpdateAction(OnUpdate);
     }
 }

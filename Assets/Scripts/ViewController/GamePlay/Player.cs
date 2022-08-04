@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;    
+using System;
 using QFramework;
-using QFramework.FlyChess;
 
 
 namespace QFramework.FlyChess
@@ -33,7 +33,7 @@ namespace QFramework.FlyChess
 
     
     // Use this for initialization
-    void Start ()
+    void Awake()
     {
         m_animator = GetComponent<Animator>();
         m_body2d = GetComponent<Rigidbody2D>();
@@ -47,10 +47,19 @@ namespace QFramework.FlyChess
 
         mGameModel = this.GetModel<IPlayerModel>();
         mGameModel.Speed = new BindableProperty<float>(4.0f);
+        this.RegisterEvent<DirInputEvent>(OnInputDir);
+    }
+    private static Action mUpdateAction;
+    public static void AddUpdateAction(Action fun) => mUpdateAction += fun;
+    public static void RemoveUpdateAction(Action fun) => mUpdateAction -= fun;
+
+    private void Update()
+    {
+        mUpdateAction?.Invoke();
     }
 
     // Update is called once per frame
-    void Update ()
+    void OnInputDir (DirInputEvent e)
     {
         // Increase timer that controls attack combo
         m_timeSinceAttack += Time.deltaTime;
@@ -79,7 +88,8 @@ namespace QFramework.FlyChess
         }
 
         // -- Handle input and movement --
-        float inputX = Input.GetAxis("Horizontal");
+        // float inputX = Input.GetAxis("Horizontal");
+        float inputX = e.hor;
 
         // Swap direction of sprite depending on walk direction
         if (inputX > 0)
@@ -109,8 +119,8 @@ namespace QFramework.FlyChess
         //Death
         if (Input.GetKeyDown("e") && !m_rolling)
         {
-            m_animator.SetBool("noBlood", m_noBlood);
-            m_animator.SetTrigger("Death");
+            // m_animator.SetBool("noBlood", m_noBlood);
+            // m_animator.SetTrigger("Death");
         }
             
         //Hurt
@@ -212,6 +222,7 @@ namespace QFramework.FlyChess
             dust.transform.localScale = new Vector3(mGameModel.Face, 1, 1);
         }
     }
+  
 //    public override bool Damage()
 //    {
 //     m_animator.SetTrigger("Hurt");

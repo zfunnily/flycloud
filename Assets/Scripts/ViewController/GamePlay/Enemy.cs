@@ -130,8 +130,6 @@ public class Enemy : FlyChessController{
         return CurrentState;
     }
     void Update () {
-        
-       
         if (m_player.position.x < transform.position.x)
         {
             facingDirection = -1;// 玩家在敌人的左边

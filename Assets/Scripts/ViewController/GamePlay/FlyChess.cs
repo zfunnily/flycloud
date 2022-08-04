@@ -8,7 +8,6 @@ namespace QFramework.FlyChess
         protected override void Init()
         {
             RegisterSystem<IEnemySystem>(new EnemySystem());
-            RegisterSystem<IPlayerSystem>(new PlayerSystem());
 
             RegisterSystem<ITimeSystem>(new TimeSystem());
             RegisterSystem<IInputSystem>(new InputSystem());

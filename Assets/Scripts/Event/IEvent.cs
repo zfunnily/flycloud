@@ -1,4 +1,6 @@
 using UnityEngine;
+namespace QFramework.FlyChess
+{
 internal struct DirInputEvent
 {
     public int hor, ver;
@@ -9,7 +11,9 @@ public struct DamageEvent
     public float SPCost;
 }
 
-public struct SkillDeployerEvent
+public struct SkillEvent
 {
-    public int id;
+    public SkillID ID;
+}
+
 }
