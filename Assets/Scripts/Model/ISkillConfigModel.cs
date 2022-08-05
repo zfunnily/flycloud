@@ -5,6 +5,7 @@ namespace QFramework.FlyChess
 {
     public enum SkillID
     {
+        UNKNOWN,
         LIGHTNING,
 
     }

@@ -7,15 +7,14 @@ using QFramework;
 namespace QFramework.FlyChess
 {
 //技能管理器
-public abstract  class SkillManager : MonoBehaviour
+public abstract  class Skill: FlyChessController
 {
     private Transform m_Transform;
 
     private CharacterData m_PlayerData;
 
-    private SkillData m_NowSKill;
-    //技能列表
-    public List<SkillData> Skills;
+    private SkillInfo m_NowSKill;
+    // public List<SkillData> Skills;
     private SkillSystem m_Deployer;
 
     public CharacterData characterData {
@@ -35,25 +34,23 @@ public abstract  class SkillManager : MonoBehaviour
 
     private void Start()
     {
-        for (int i = 0; i < Skills.Count; i++)
-        {
-            InitSkill(Skills[i]);
-        }
-        
-       
+        // for (int i = 0; i < Skills.Count; i++)
+        // {
+        //     InitSkill(Skills[i]);
+        // }
     }
   
     public abstract void Update();
 
     public void useSkill(int id)
     {
-        // Debug.Log("id: " + id);
-        m_NowSKill = PrepareSkill(id);
-        if (m_NowSKill == null)
-        {
-            return;
-        }
-        GenerateSkill(m_NowSKill);
+        // // Debug.Log("id: " + id);
+        // m_NowSKill = PrepareSkill(id);
+        // if (m_NowSKill == null)
+        // {
+        //     return;
+        // }
+        // GenerateSkill(m_NowSKill);
     }
 
 

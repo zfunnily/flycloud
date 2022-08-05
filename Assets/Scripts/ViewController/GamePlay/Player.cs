@@ -43,11 +43,12 @@ namespace QFramework.FlyChess
         m_wallSensorL1 = transform.Find("WallSensor_L1").GetComponent<Sensor_HeroKnight>();
         m_wallSensorL2 = transform.Find("WallSensor_L2").GetComponent<Sensor_HeroKnight>();
         m_attackTrigger = transform.Find("AttackCollider").GetComponent<Transform>();
-        HPStrip         = transform.Find("CharacterInfo").Find("HP").GetComponent<Slider>();
+        HPStrip         = transform.parent.Find("CharacterInfo").Find("HP").GetComponent<Slider>();
 
         mGameModel = this.GetModel<IPlayerModel>();
         mGameModel.Speed = new BindableProperty<float>(4.0f);
         this.RegisterEvent<DirInputEvent>(OnInputDir);
+        this.RegisterEvent<SkillEvent>(OnSkill);
     }
     private static Action mUpdateAction;
     public static void AddUpdateAction(Action fun) => mUpdateAction += fun;
@@ -202,6 +203,10 @@ namespace QFramework.FlyChess
         }
     }
 
+    void OnSkill(SkillEvent e)
+    {
+        if (e.ID == SkillID.UNKNOWN) return;
+    }
     // Animation Events
     // Called in slide animation.
     void AE_SlideDust()

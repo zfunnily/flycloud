@@ -30,6 +30,7 @@ namespace QFramework.FlyChess
         // check skill keycode
         private void CheckSkillKeyCode()
         {
+            mSkillEvent.ID = SkillID.UNKNOWN;
             if (BindableSkillInput(Skill1))
             {
                 mSkillEvent.ID = SkillID.LIGHTNING;
