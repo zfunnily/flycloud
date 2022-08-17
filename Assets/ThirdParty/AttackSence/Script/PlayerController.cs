@@ -119,6 +119,7 @@ public class PlayerController : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
+        Debug.Log("enemey: " + other.tag);
         if (other.CompareTag("Enemy"))
         {
             if (attackType == "Light")

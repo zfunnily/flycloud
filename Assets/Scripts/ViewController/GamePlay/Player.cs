@@ -1,7 +1,9 @@
 using UnityEngine;
 using UnityEngine.UI;    
 using System;
+using UnityEngine.SceneManagement;
 using QFramework;
+
 
 
 namespace QFramework.FlyChess
@@ -21,7 +23,7 @@ namespace QFramework.FlyChess
     private bool                m_grounded = false;
     private bool                m_rolling = false;
     private int                 m_currentAttack = 0;
-    private float               m_timeSinceAttack = 0.0f;
+    private float               m_timeSinceAttack = 2.0f;
     private float               m_delayToIdle = 0.0f;
     private float               m_rollDuration = 8.0f / 14.0f;
     private float               m_rollCurrentTime;
@@ -30,6 +32,7 @@ namespace QFramework.FlyChess
     private IPlayerModel  mGameModel;
     private Slider HPStrip;    // 添加血条Slider的引用
     private Transform m_attackTrigger;
+    private bool isAttack;
 
     
     // Use this for initialization
@@ -49,6 +52,7 @@ namespace QFramework.FlyChess
         mGameModel.Speed = new BindableProperty<float>(4.0f);
         this.RegisterEvent<DirInputEvent>(OnInputDir);
         this.RegisterEvent<SkillEvent>(OnSkill);
+        this.RegisterEvent<SuddenFrameEvent>(OnSuddenFrame);
     }
     private static Action mUpdateAction;
     public static void AddUpdateAction(Action fun) => mUpdateAction += fun;
@@ -62,10 +66,6 @@ namespace QFramework.FlyChess
     // Update is called once per frame
     void OnInputDir (DirInputEvent e)
     {
-        // Increase timer that controls attack combo
-        m_timeSinceAttack += Time.deltaTime;
-        // m_attackTrigger.gameObject.SetActive(false); 
-
         // Increase timer that checks roll duration
         if(m_rolling)
             m_rollCurrentTime += Time.deltaTime;
@@ -88,34 +88,9 @@ namespace QFramework.FlyChess
             m_animator.SetBool("Grounded", m_grounded);
         }
 
-        // -- Handle input and movement --
-        // float inputX = Input.GetAxis("Horizontal");
         float inputX = e.hor;
-
-        // Swap direction of sprite depending on walk direction
-        if (inputX > 0)
-        {
-            GetComponent<SpriteRenderer>().flipX = false;
-            mGameModel.Face= new BindableProperty<int>(1);
-        }
-            
-        else if (inputX < 0)
-        {
-            GetComponent<SpriteRenderer>().flipX = true;
-            mGameModel.Face= new BindableProperty<int>(-1);
-        }
-
-        // Move
-        if (!m_rolling )
-            m_body2d.velocity = new Vector2(inputX * mGameModel.Speed, m_body2d.velocity.y);
-
-        //Set AirSpeed in animator
-        m_animator.SetFloat("AirSpeedY", m_body2d.velocity.y);
-
-        // -- Handle Animations --
-        //Wall Slide
-        m_isWallSliding = (m_wallSensorR1.State() && m_wallSensorR2.State()) || (m_wallSensorL1.State() && m_wallSensorL2.State());
-        m_animator.SetBool("WallSlide", m_isWallSliding);
+        Move(e);
+        Attack();        
 
         //Death
         if (Input.GetKeyDown("e") && !m_rolling)
@@ -128,25 +103,6 @@ namespace QFramework.FlyChess
         else if (Input.GetKeyDown("q") && !m_rolling)
             m_animator.SetTrigger("Hurt");
 
-        //Attack
-        else if(Input.GetMouseButtonDown(0) && m_timeSinceAttack > 0.25f && !m_rolling)
-        {
-            m_currentAttack++;
-
-            // Loop back to one after third attack
-            if (m_currentAttack > 3)
-                m_currentAttack = 1;
-
-            // Reset Attack combo if time since last attack is too large
-            if (m_timeSinceAttack > 1.0f)
-                m_currentAttack = 1;
-
-            // Call one of three attack animations "Attack1", "Attack2", "Attack3"
-            m_animator.SetTrigger("Attack" + m_currentAttack);
-
-            // Reset timer
-            m_timeSinceAttack = 0.0f;
-        }
 
         // Block
         else if (Input.GetMouseButtonDown(1) && !m_rolling)
@@ -165,7 +121,6 @@ namespace QFramework.FlyChess
             m_animator.SetTrigger("Roll");
             m_body2d.velocity = new Vector2(mGameModel.Face* mGameModel.RollForce, m_body2d.velocity.y);
         }
-            
 
         //Jump
         else if (Input.GetKeyDown("space") && m_grounded && !m_rolling)
@@ -184,6 +139,12 @@ namespace QFramework.FlyChess
             m_delayToIdle = 0.05f;
             m_animator.SetInteger("AnimState", 1);
         }
+
+        else if (Input.GetKeyDown(KeyCode.B))
+        {
+            // SceneManager.LoadScene("Level2");//Level2为我们要切换到的场景
+            transform.position = new Vector2(-77.7f, -9.92f);
+        }
         
         //Idle
         else
@@ -193,19 +154,93 @@ namespace QFramework.FlyChess
                 if(m_delayToIdle < 0)
                     m_animator.SetInteger("AnimState", 0);
         }
+    }
 
-        if (m_animator.GetCurrentAnimatorStateInfo(0).IsName("Attack" + m_currentAttack))
+    void Move(DirInputEvent e)
+    {
+        // -- Handle input and movement --
+        // float inputX = Input.GetAxis("Horizontal");
+        float inputX = e.hor;
+
+        // Swap direction of sprite depending on walk direction
+        if (inputX > 0)
         {
-            m_attackTrigger.localPosition = new Vector2(0.6f*mGameModel.Face, .66f);
-            m_attackTrigger.gameObject.SetActive(true); 
-        }else {
-            m_attackTrigger.gameObject.SetActive(false); 
+            GetComponent<SpriteRenderer>().flipX = false;
+            mGameModel.Face= new BindableProperty<int>(1);
         }
+        else if (inputX < 0)
+        {
+            GetComponent<SpriteRenderer>().flipX = true;
+            mGameModel.Face= new BindableProperty<int>(-1);
+        }
+
+        if (!isAttack && !m_rolling)
+            m_body2d.velocity = new Vector2(inputX * mGameModel.Speed, m_body2d.velocity.y);
+        else
+        {
+            m_body2d.velocity = new Vector2(transform.localScale.x * 2, m_body2d.velocity.y);
+        }
+
+        //Set AirSpeed in animator
+        m_animator.SetFloat("AirSpeedY", m_body2d.velocity.y);
+
+        // -- Handle Animations --
+        //Wall Slide
+        m_isWallSliding = (m_wallSensorR1.State() && m_wallSensorR2.State()) || (m_wallSensorL1.State() && m_wallSensorL2.State());
+        m_animator.SetBool("WallSlide", m_isWallSliding);
+    }
+
+    public void AttackIng()
+    {
+        m_attackTrigger.localPosition = new Vector2(0.6f*mGameModel.Face, .66f);
+        m_attackTrigger.gameObject.SetActive(true); 
+    }
+
+    public void AttackOver()
+    {
+        isAttack = false;
+        m_attackTrigger.gameObject.SetActive(false); 
+    }
+    void Attack()
+    {
+        if(Input.GetMouseButtonDown(0) && !m_rolling && !isAttack)
+        {
+            isAttack = true;
+            m_currentAttack++;
+            if (m_currentAttack > 3)
+                m_currentAttack = 1;
+
+            m_animator.SetTrigger("Attack" + m_currentAttack);
+            // Reset timer
+            m_timeSinceAttack = 2.0f;
+        }
+
+        if (m_timeSinceAttack != 0)
+        {
+            m_timeSinceAttack -= Time.deltaTime;
+            if (m_timeSinceAttack <= 0)
+            {
+                m_timeSinceAttack = 0;
+                m_currentAttack = 0;
+            }
+        }
+
+        
     }
 
     void OnSkill(SkillEvent e)
     {
         if (e.ID == SkillID.UNKNOWN) return;
+    }
+
+    void AnimPlay()
+    {
+        m_animator.speed = 1;
+    }
+    void OnSuddenFrame(SuddenFrameEvent e)
+    {
+        // m_animator.speed = 0;
+        // Invoke("AnimPlay", 1/2.8f);
     }
     // Animation Events
     // Called in slide animation.
@@ -250,5 +285,69 @@ namespace QFramework.FlyChess
 //         }
 //         return false;
 //     }
+
+
+private void OnTriggerEnter2D (Collider2D collision)
+    {
+
+        if (collision.CompareTag("Enemy"))
+        {
+            AttackSense.Instance.HitPause(6);
+            AttackSense.Instance.CameraShake(.1f, .015f);
+        }
+        string gameTag = this.gameObject.tag;
+        // Debug.Log("OnTriggerEnter2D.." + gameTag + "; collision.tag: " + collision.tag);
+        // if ((gameTag == "PlayerCollider" && collision.tag == "Enemy"))  
+        // {
+        //     Enemy gameObject = GameObject.FindGameObjectWithTag(collision.tag).GetComponent<Enemy>();
+        //     if (gameObject != null) gameObject.SendCommand<DamageCommand>();
+
+        //     this.SendCommand<SuddenFrameCommand>();
+        //     return;
+        // }
+        // if (gameTag == "EnemyCollider" && collision.tag == "Player")
+        // {
+        //     Player gameObject = GameObject.FindGameObjectWithTag(collision.tag).GetComponent<Player>();
+        //     if (gameObject != null) gameObject.SendCommand<DamageCommand>();
+        //     return;
+        // }
+
+
+        // 1. 如何判断近战攻击击中了子弹？
+        // 2. 如何将弹反后的子弹视为由玩家发动的攻击？
+        // 3. https://www.cnblogs.com/OtusScops/p/14710506.html
+        if ((gameTag == "BulletCollider")) // 如果是子弹
+        {
+            if(collision.tag == "PlayerCollider") // 子弹与player碰撞
+            {
+               this.gameObject.tag = "PlayerAttack"; // 改变标签
+                // GameObject.FindWithTag("MainCamera").GetComponent<>().enabled = true; // 震动屏幕
+                SkillSystem sd = GetComponent<SkillSystem>();
+                if (sd != null) sd.TurnFace();
+            }
+            if (collision.tag == "Player") 
+            {
+               CharacterData gameObject = GameObject.FindGameObjectWithTag(collision.tag).GetComponent<CharacterData>();
+                if (gameObject != null) 
+                {
+                    if (gameObject.Dodge()) return;
+
+                    if (!gameObject.Block()) gameObject.Damage();
+                    
+                    
+                }
+                Destroy(this.gameObject);
+            }
+        }else if (gameTag == "PlayerAttack")  // 由 player 反弹回来的子弹
+        {
+            if (collision.tag == "Enemy")
+            {
+               CharacterData gameObject = GameObject.FindGameObjectWithTag(collision.tag).GetComponent<CharacterData>();
+                if (gameObject != null) gameObject.Damage(); 
+                Destroy(this.gameObject);
+            }
+        }
+    }
+
 	}
 }

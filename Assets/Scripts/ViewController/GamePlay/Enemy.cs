@@ -41,6 +41,7 @@ public class Enemy : FlyChessController{
         m_body2d = GetComponent<Rigidbody2D>();
         m_player = GameObject.FindWithTag("Player").transform;
         HPStrip.value = HPStrip.maxValue = 100;    //初始化血条
+        this.RegisterEvent<DamageEvent>(OnDamage);
     }
 	
 	// Update is called once per frame
@@ -150,7 +151,7 @@ public class Enemy : FlyChessController{
                 break; 
             case EnemyState.run:
                 m_attackTrigger.gameObject.SetActive(false); 
-                m_animator.SetTrigger("Run");
+                // m_animator.SetTrigger("Run");
 
                 Vector3 direct= transform.right  * Time.deltaTime * speed * facingDirection;
                 transform.Translate(direct);
@@ -212,27 +213,10 @@ public class Enemy : FlyChessController{
         // }
     }
 
-    // public override bool Damage()
-    // {
-    //     HP -= 40;
-    //     HPStrip.value=HP;    //适当的时候对血条执行操作
-    //     if (this.Dead()) 
-    //     {
-    //         CurrentState = EnemyState.death;
-    //         return false;
-    //     }
-    //     CurrentState = EnemyState.hurt;
-    //     return true;
-    // }
-
-    // public override bool Dodge()
-    // {
-    //     return false;
-    // }
-    // public override bool Block()
-    // {
-    //     return false;
-    // }
+    public void OnDamage(DamageEvent e)
+    {
+        CurrentState = EnemyState.hurt;
+    }
 }
 
 }

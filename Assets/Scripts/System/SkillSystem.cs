@@ -34,7 +34,6 @@ namespace QFramework.FlyChess
         public Queue<SkillInfo> SkillInfos=> mSkillInfos;
         private Queue<SkillInfo> mSkillInfos = new Queue<SkillInfo>();
         private CharacterData m_PlayerData;
-        private AttackCollider attackCollider;
         public int m_facingDirection;
 
 
