@@ -8,6 +8,7 @@ internal struct DirInputEvent
 public struct DamageEvent
 {
     public float HPCost;
+    public Vector2 direction;
 }
 
 public struct SkillEvent

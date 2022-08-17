@@ -119,7 +119,7 @@ namespace QFramework.FlyChess
         {
             m_rolling = true;
             m_animator.SetTrigger("Roll");
-            m_body2d.velocity = new Vector2(mGameModel.Face* mGameModel.RollForce, m_body2d.velocity.y);
+            m_body2d.velocity = new Vector2(mGameModel.Face.Value.x* mGameModel.RollForce, m_body2d.velocity.y);
         }
 
         //Jump
@@ -166,20 +166,22 @@ namespace QFramework.FlyChess
         if (inputX > 0)
         {
             GetComponent<SpriteRenderer>().flipX = false;
-            mGameModel.Face= new BindableProperty<int>(1);
+            mGameModel.Face= new BindableProperty<Vector2>(new Vector2(1,1)); 
         }
         else if (inputX < 0)
         {
             GetComponent<SpriteRenderer>().flipX = true;
-            mGameModel.Face= new BindableProperty<int>(-1);
+            mGameModel.Face= new BindableProperty<Vector2>(new Vector2(-1,1)); 
         }
+        // transform.localScale = new Vector3(mGameModel.Face.Value.x, 1, 1);
 
         if (!isAttack && !m_rolling)
             m_body2d.velocity = new Vector2(inputX * mGameModel.Speed, m_body2d.velocity.y);
         else
         {
-            m_body2d.velocity = new Vector2(transform.localScale.x * 2, m_body2d.velocity.y);
+            m_body2d.velocity = new Vector2(inputX * 2, m_body2d.velocity.y);
         }
+
 
         //Set AirSpeed in animator
         m_animator.SetFloat("AirSpeedY", m_body2d.velocity.y);
@@ -192,7 +194,7 @@ namespace QFramework.FlyChess
 
     public void AttackIng()
     {
-        m_attackTrigger.localPosition = new Vector2(0.6f*mGameModel.Face, .66f);
+        m_attackTrigger.localPosition = new Vector2(0.6f*mGameModel.Face.Value.x, .66f);
         m_attackTrigger.gameObject.SetActive(true); 
     }
 
@@ -248,7 +250,7 @@ namespace QFramework.FlyChess
     {
         Vector3 spawnPosition;
 
-        if (mGameModel.Face== 1)
+        if (mGameModel.Face.Value.x== 1)
             spawnPosition = m_wallSensorR2.transform.position;
         else
             spawnPosition = m_wallSensorL2.transform.position;
@@ -259,7 +261,7 @@ namespace QFramework.FlyChess
             // Set correct arrow spawn position
             GameObject dust = Instantiate(m_slideDust, spawnPosition, gameObject.transform.localRotation) as GameObject;
             // Turn arrow in correct direction
-            dust.transform.localScale = new Vector3(mGameModel.Face, 1, 1);
+            dust.transform.localScale = new Vector3(mGameModel.Face.Value.x, 1, 1);
         }
     }
   
@@ -292,33 +294,18 @@ private void OnTriggerEnter2D (Collider2D collision)
 
         if (collision.CompareTag("Enemy"))
         {
+            // 顿帧 & 屏幕震动
             AttackSense.Instance.HitPause(6);
             AttackSense.Instance.CameraShake(.1f, .015f);
 
            var enemy = collision.GetComponent<Enemy>();
            if (enemy != null) enemy.SendCommand<DamageCommand>();
         }
-        string gameTag = this.gameObject.tag;
-        // Debug.Log("OnTriggerEnter2D.." + gameTag + "; collision.tag: " + collision.tag);
-        // if ((gameTag == "PlayerCollider" && collision.tag == "Enemy"))  
-        // {
-        //     Enemy gameObject = GameObject.FindGameObjectWithTag(collision.tag).GetComponent<Enemy>();
-        //     if (gameObject != null) gameObject.SendCommand<DamageCommand>();
-
-        //     this.SendCommand<SuddenFrameCommand>();
-        //     return;
-        // }
-        // if (gameTag == "EnemyCollider" && collision.tag == "Player")
-        // {
-        //     Player gameObject = GameObject.FindGameObjectWithTag(collision.tag).GetComponent<Player>();
-        //     if (gameObject != null) gameObject.SendCommand<DamageCommand>();
-        //     return;
-        // }
-
 
         // 1. 如何判断近战攻击击中了子弹？
         // 2. 如何将弹反后的子弹视为由玩家发动的攻击？
         // 3. https://www.cnblogs.com/OtusScops/p/14710506.html
+        string gameTag = this.gameObject.tag;
         if ((gameTag == "BulletCollider")) // 如果是子弹
         {
             if(collision.tag == "PlayerCollider") // 子弹与player碰撞

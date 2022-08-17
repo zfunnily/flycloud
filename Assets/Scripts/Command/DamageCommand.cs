@@ -12,6 +12,7 @@ namespace QFramework.FlyChess
             var gameModel = this.GetModel<IPlayerModel>();
             DamageEvent dmg = new DamageEvent();
             dmg.HPCost = 20;
+            dmg.direction = gameModel.Face.Value;
             this.SendEvent<DamageEvent>(dmg);
         }
     }

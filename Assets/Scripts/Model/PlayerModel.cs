@@ -16,7 +16,7 @@ namespace QFramework.FlyChess
         BindableProperty<float> NoBlood{ get; set;}
         // BindableProperty<Slider> HPStrip{ get; }
         BindableProperty<float> DeathMoveDistance{ get; set; } // 死亡时 移动的距离
-        BindableProperty<int> Face{ get; set;} // 朝向
+        BindableProperty<Vector2> Face{ get; set;} // 朝向
 
         BindableProperty<int> Gold { get; set;}
 
@@ -34,7 +34,7 @@ namespace QFramework.FlyChess
         public BindableProperty<float> NoBlood{ get; set;} = new BindableProperty<float>() { Value = 0};
         // public BindableProperty<Slider> HPStrip{ get; } = new BindableProperty<Slider>() { Value = Get };
         public BindableProperty<float> DeathMoveDistance{ get; set; } = new BindableProperty<float>() { Value = 0 };
-        public BindableProperty<int> Face{ get; set;} = new BindableProperty<int>() { Value = 0 };
+        public BindableProperty<Vector2> Face{ get; set;} = new BindableProperty<Vector2>() { Value = new Vector2(1,1) };
         public BindableProperty<int> Gold{ get; set;} = new BindableProperty<int>() { Value = 99 };
         public BindableProperty<int> Score{ get; set;} = new BindableProperty<int>() { Value = 0 };
         public BindableProperty<int> FacingDirection{ get; set;} = new BindableProperty<int>() { Value = 0 };

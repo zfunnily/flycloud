@@ -33,6 +33,8 @@ public class Enemy : FlyChessController{
     public Transform m_attackTrigger;
     int facingDirection;
     int speed;
+    private bool isHit;
+    private Vector2 direction;
 
     // Start is called before the first frame update
     // Use this for initialization
@@ -132,14 +134,14 @@ public class Enemy : FlyChessController{
     }
 
     void Update () {
-        if (m_player.position.x < transform.position.x)
-        {
-            facingDirection = -1;// 玩家在敌人的左边
-            transform.localScale = new Vector3(5.0f, 5.0f, 1.0f);
-        }else {
-            facingDirection = 1;
-            transform.localScale = new Vector3(-5.0f, 5.0f, 1.0f);
-        }
+        // if (m_player.position.x < transform.position.x)
+        // {
+        //     facingDirection = -1;// 玩家在敌人的左边
+        //     transform.localScale = new Vector3(5.0f, 5.0f, 1.0f);
+        // }else {
+        //     facingDirection = 1;
+        //     transform.localScale = new Vector3(-5.0f, 5.0f, 1.0f);
+        // }
 
         float distance = Vector3.Distance(m_player.position, transform.position);
         switch (CurrentState)
@@ -157,9 +159,8 @@ public class Enemy : FlyChessController{
                 Vector3 direct= transform.right  * Time.deltaTime * speed * facingDirection;
                 transform.Translate(direct);
 
-                attackCounter = attackTime;//每次移动到最小攻击距离时就会立即攻击
+                attackCounter = attackTime;// 每次移动到最小攻击距离时就会立即攻击
                 // m_animator.SetFloat("AirSpeed", m_body2d.velocity.y);
-
                 // m_animator.SetInteger("AnimState", 2);//移动的时候播放跑步动画
 
                 checkAttackDistance(distance);
@@ -178,12 +179,14 @@ public class Enemy : FlyChessController{
                 break;
             case EnemyState.hurt:
                 m_attackTrigger.gameObject.SetActive(false);
-                // transform.Translate(transform.right * facingDirection * 4 * -1);
                 m_animator.SetTrigger("Hurt");
 
-                if (HPStrip.value == 0) CurrentState = EnemyState.death;
-                else checkAttackDistance(distance);
+                if (HPStrip.value == 0) 
+                    CurrentState = EnemyState.death;
+                else 
+                    checkAttackDistance(distance);
 
+                //  m_body2d.velocity = direction * speed;
                 break;
             case EnemyState.death:
                 m_attackTrigger.gameObject.SetActive(false);
@@ -191,8 +194,6 @@ public class Enemy : FlyChessController{
                 m_animator.SetTrigger("Death");
                 // transform.Translate(Vector3.up*-1 * Time.deltaTime);
                 // transform.position = transform.position + new Vector3(0, -1*deathMove, 0);
-
-
                 HPStrip.gameObject.SetActive(false);
                 break;
 
@@ -221,9 +222,25 @@ public class Enemy : FlyChessController{
             CurrentState = EnemyState.death;
             return;
         }
+        transform.localScale = new Vector3(-e.direction.x*5.0f, 5.0f, 5.0f);
+        this.direction = e.direction; 
         CurrentState = EnemyState.hurt;
         HPStrip.value -= e.HPCost;
     }
+
+    private void OnTriggerEnter2D (Collider2D collision)
+    {
+
+        if (collision.CompareTag("Player"))
+        {
+            // AttackSense.Instance.HitPause(6);
+            // AttackSense.Instance.CameraShake(.1f, .015f);
+
+           var player = collision.GetComponent<Player>();
+           if (player != null) player.SendCommand<DamageCommand>();
+        }
+    }
+
 }
 
 }
