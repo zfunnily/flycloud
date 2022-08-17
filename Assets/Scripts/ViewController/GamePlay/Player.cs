@@ -294,6 +294,9 @@ private void OnTriggerEnter2D (Collider2D collision)
         {
             AttackSense.Instance.HitPause(6);
             AttackSense.Instance.CameraShake(.1f, .015f);
+
+           var enemy = collision.GetComponent<Enemy>();
+           if (enemy != null) enemy.SendCommand<DamageCommand>();
         }
         string gameTag = this.gameObject.tag;
         // Debug.Log("OnTriggerEnter2D.." + gameTag + "; collision.tag: " + collision.tag);

@@ -130,6 +130,7 @@ public class Enemy : FlyChessController{
         }
         return CurrentState;
     }
+
     void Update () {
         if (m_player.position.x < transform.position.x)
         {
@@ -180,8 +181,8 @@ public class Enemy : FlyChessController{
                 // transform.Translate(transform.right * facingDirection * 4 * -1);
                 m_animator.SetTrigger("Hurt");
 
-                // if (this.Dead()) CurrentState = EnemyState.death;
-                // else checkAttackDistance(distance);
+                if (HPStrip.value == 0) CurrentState = EnemyState.death;
+                else checkAttackDistance(distance);
 
                 break;
             case EnemyState.death:
@@ -215,7 +216,13 @@ public class Enemy : FlyChessController{
 
     public void OnDamage(DamageEvent e)
     {
+        if (HPStrip.value == 0)
+        {
+            CurrentState = EnemyState.death;
+            return;
+        }
         CurrentState = EnemyState.hurt;
+        HPStrip.value -= e.HPCost;
     }
 }
 
