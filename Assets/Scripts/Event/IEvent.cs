@@ -16,9 +16,4 @@ public struct SkillEvent
     public SkillID ID;
 }
 
-public struct SuddenFrameEvent
-{
-
-}
-
 }

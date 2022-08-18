@@ -178,6 +178,9 @@ public class Enemy : FlyChessController{
                 checkAttackDistance(distance);
                 break;
             case EnemyState.hurt:
+                transform.localScale = new Vector3(direction.x*5.0f, 5.0f, 5.0f);
+                m_body2d.velocity = direction * speed;
+
                 m_attackTrigger.gameObject.SetActive(false);
                 m_animator.SetTrigger("Hurt");
 
@@ -186,7 +189,6 @@ public class Enemy : FlyChessController{
                 else 
                     checkAttackDistance(distance);
 
-                //  m_body2d.velocity = direction * speed;
                 break;
             case EnemyState.death:
                 m_attackTrigger.gameObject.SetActive(false);
@@ -222,23 +224,36 @@ public class Enemy : FlyChessController{
             CurrentState = EnemyState.death;
             return;
         }
-        transform.localScale = new Vector3(-e.direction.x*5.0f, 5.0f, 5.0f);
-        this.direction = e.direction; 
         CurrentState = EnemyState.hurt;
+        this.direction = e.direction; 
         HPStrip.value -= e.HPCost;
     }
 
-    private void OnTriggerEnter2D (Collider2D collision)
+    // private void OnTriggerEnter2D (Collider2D collision)
+    // {
+
+    //     if (collision.CompareTag("Player"))
+    //     {
+    //         // AttackSense.Instance.HitPause(6);
+    //         // AttackSense.Instance.CameraShake(.1f, .015f);
+
+    //        var player = collision.GetComponent<Player>();
+    //        if (player != null) player.SendCommand<DamageCommand>();
+    //     }
+    // }
+
+     private void OnTriggerEnter2D (Collider2D collision)
     {
-
-        if (collision.CompareTag("Player"))
+        // Debug.Log("other tag: "+ collision.tag.ToString() + "; this tag: " + this.gameObject.tag);
+        if (collision.CompareTag("PlayerCollider"))
         {
-            // AttackSense.Instance.HitPause(6);
-            // AttackSense.Instance.CameraShake(.1f, .015f);
-
-           var player = collision.GetComponent<Player>();
-           if (player != null) player.SendCommand<DamageCommand>();
+            // 顿帧 & 屏幕震动
+            AttackSense.Instance.HitPause(6);
+            AttackSense.Instance.CameraShake(.1f, .015f);
+            this.SendCommand<DamageCommand>();
         }
+
+        
     }
 
 }

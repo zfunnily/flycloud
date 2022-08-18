@@ -52,7 +52,6 @@ namespace QFramework.FlyChess
         mGameModel.Speed = new BindableProperty<float>(4.0f);
         this.RegisterEvent<DirInputEvent>(OnInputDir);
         this.RegisterEvent<SkillEvent>(OnSkill);
-        this.RegisterEvent<SuddenFrameEvent>(OnSuddenFrame);
     }
     private static Action mUpdateAction;
     public static void AddUpdateAction(Action fun) => mUpdateAction += fun;
@@ -179,7 +178,7 @@ namespace QFramework.FlyChess
             m_body2d.velocity = new Vector2(inputX * mGameModel.Speed, m_body2d.velocity.y);
         else
         {
-            m_body2d.velocity = new Vector2(inputX * 2, m_body2d.velocity.y);
+            m_body2d.velocity = new Vector2(transform.localScale.x * mGameModel.Speed, m_body2d.velocity.y);
         }
 
 
@@ -226,8 +225,6 @@ namespace QFramework.FlyChess
                 m_currentAttack = 0;
             }
         }
-
-        
     }
 
     void OnSkill(SkillEvent e)
@@ -239,11 +236,7 @@ namespace QFramework.FlyChess
     {
         m_animator.speed = 1;
     }
-    void OnSuddenFrame(SuddenFrameEvent e)
-    {
-        // m_animator.speed = 0;
-        // Invoke("AnimPlay", 1/2.8f);
-    }
+
     // Animation Events
     // Called in slide animation.
     void AE_SlideDust()
@@ -289,17 +282,14 @@ namespace QFramework.FlyChess
 //     }
 
 
-private void OnTriggerEnter2D (Collider2D collision)
+    private void OnTriggerEnter2D (Collider2D collision)
     {
-
-        if (collision.CompareTag("Enemy"))
+        if (collision.CompareTag("Player"))
         {
-            // 顿帧 & 屏幕震动
-            AttackSense.Instance.HitPause(6);
-            AttackSense.Instance.CameraShake(.1f, .015f);
+            // AttackSense.Instance.HitPause(6);
+            // AttackSense.Instance.CameraShake(.1f, .015f);
 
-           var enemy = collision.GetComponent<Enemy>();
-           if (enemy != null) enemy.SendCommand<DamageCommand>();
+        //    this.SendCommand<DamageCommand>();
         }
 
         // 1. 如何判断近战攻击击中了子弹？

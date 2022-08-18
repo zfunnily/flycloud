@@ -25,7 +25,7 @@ public class FollowTarget: MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.B) && sence_idx==0) 
         {
-            sence_idx+=2;
+            // sence_idx+=2;
         }
         // this.transform.position = player.position - offset;
         Targetpos = new Vector3(player.transform.position.x, player.transform.position.y, transform.position.z);
