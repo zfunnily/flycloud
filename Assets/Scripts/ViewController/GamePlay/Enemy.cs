@@ -7,21 +7,15 @@ using QFramework;
 
 namespace QFramework.FlyChess
 {
+    
+public enum StateType
+{
+    Idle, Patrol, Chase, React, Attack, Hit, Death
+}
 public class Enemy : FlyChessController{
-    public enum EnemyState 
-    {
-        idle,
-        ready,
-        run,
-        attack,
-        hurt,
-        death,
-        destory,
-    }
     
     private Animator            m_animator;
     private Rigidbody2D         m_body2d;
-    public EnemyState CurrentState = EnemyState.idle;
     private Transform           m_player;
     public float attackTime = 1.0f;   //设置定时器时间 3秒攻击一次
     private float attackCounter = 0; //计时器变量
@@ -32,10 +26,16 @@ public class Enemy : FlyChessController{
     public Slider HPStrip;    // 添加血条Slider的引用
     public Transform m_attackTrigger;
     int facingDirection;
-    int speed;
+    int speed = 2;
+    public Transform[] patrolPoints; // 巡逻边界
+    public Transform[] chasePoints; // 追逐边界
     private bool isHit;
     private Vector2 direction;
-
+    private FSM<StateType> FSM;
+    private float distance;
+    private bool beHit;
+    private float idleTimer;
+    private int patrolPosition;
     // Start is called before the first frame update
     // Use this for initialization
     void Start () {
@@ -44,8 +44,11 @@ public class Enemy : FlyChessController{
         m_player = GameObject.FindWithTag("Player").transform;
         HPStrip.value = HPStrip.maxValue = 100;    //初始化血条
         this.RegisterEvent<DamageEvent>(OnDamage);
+        FSM = new FSM<StateType>();
+        initFSM();
     }
-	
+
+   
 	// Update is called once per frame
 	// void Update1 () {
     //     //Check if character just landed on the ground
@@ -119,21 +122,147 @@ public class Enemy : FlyChessController{
     //         m_animator.SetInteger("AnimState", 0);
     // }
 
-    
-    EnemyState checkAttackDistance(float distance) 
+    void initFSM()
     {
-        if (distance > attackDistance  && distance <= attackMoveDistance)
-        {
-            CurrentState = EnemyState.run;
-        }
-        if (distance < attackDistance )
-        {
-            CurrentState = EnemyState.attack;
-        }
-        return CurrentState;
-    }
+        // idle
+        FSM.State(StateType.Idle).OnEnter(()=>{
+            Debug.Log("ener idle..");
+            m_attackTrigger.gameObject.SetActive(false); 
+            m_animator.SetTrigger("Idle");
+        }).OnUpdate(()=>{
+            if (beHit) FSM.ChangeState(StateType.Hit);
+            if (m_player != null &&
+                m_player.position.x >= this.chasePoints[0].position.x &&
+                m_player.position.x <= this.chasePoints[1].position.x)
+            {
+                FSM.ChangeState(StateType.React);
+            }
+            if (idleTimer >= 1f)
+            {
+                FSM.ChangeState(StateType.Patrol);
+            }
+        }).OnExit(()=>{
+            idleTimer = 0;
+        });
 
+        // patrol
+        FSM.State(StateType.Patrol).OnEnter(()=>{
+            Debug.Log("ener Patrol..");
+            m_animator.SetTrigger("Run");
+        }).OnUpdate(()=>{
+            FlipTo(patrolPoints[patrolPosition]);
+    
+            transform.position = Vector2.MoveTowards(transform.position,
+                patrolPoints[patrolPosition].position, speed * Time.deltaTime);
+    
+            if (beHit) FSM.ChangeState(StateType.Hit);
+
+            if (m_player != null &&
+                m_player.position.x >= chasePoints[0].position.x &&
+                m_player.position.x <= chasePoints[1].position.x)
+            {
+                FSM.ChangeState(StateType.React);
+            }
+
+            if (Vector2.Distance(transform.position, patrolPoints[patrolPosition].position) < .1f)
+            {
+                FSM.ChangeState(StateType.Idle);
+            }
+
+        }).OnExit(()=>{
+        });
+        
+        // chase
+        FSM.State(StateType.Chase).OnEnter(()=>{
+            Debug.Log("enter Chase..");
+            m_animator.SetTrigger("Run");
+        }).OnUpdate(()=>{
+            FlipTo(m_player);
+
+            if (m_player)
+                m_body2d.velocity = Vector2.MoveTowards(transform.position,
+                m_player.position, speed * Time.deltaTime);
+
+            if (beHit) FSM.ChangeState(StateType.Hit);
+
+            if (m_player == null ||
+                transform.position.x < chasePoints[0].position.x ||
+                transform.position.x > chasePoints[1].position.x)
+            {
+                Debug.Log("enter Chase update ...");
+                FSM.ChangeState(StateType.Idle);
+            }
+            if (Physics2D.OverlapCircle(transform.position, 0.35f, 0))
+            {
+                FSM.ChangeState(StateType.Attack);
+            }
+        }).OnExit(()=>{
+        });
+
+        // react
+        FSM.State(StateType.React).OnEnter(()=>{
+            Debug.Log("enter React..");
+        }).OnUpdate(()=>{
+            var info = m_animator.GetCurrentAnimatorStateInfo(0);
+            if (beHit)
+            {
+                FSM.ChangeState(StateType.Hit);
+            }
+
+            if (info.normalizedTime >= .95f)
+            {
+                FSM.ChangeState(StateType.Chase);
+            }
+        }).OnExit(()=>{
+        });
+
+        // attack
+        FSM.State(StateType.Attack).OnEnter(()=>{
+            Debug.Log("ener Attack..");
+            m_attackTrigger.gameObject.SetActive(true);
+            m_animator.SetTrigger("Attack1");
+        }).OnUpdate(()=>{
+            var info = m_animator.GetCurrentAnimatorStateInfo(0);
+    
+            if (beHit) FSM.ChangeState(StateType.Hit);
+
+            if (info.normalizedTime >= .95f) FSM.ChangeState(StateType.Chase);
+        }).OnExit(()=>{
+        });
+
+        // hit
+        FSM.State(StateType.Hit).OnEnter(()=>{
+            Debug.Log("ener Hit..");
+            m_animator.SetTrigger("Hurt");
+            transform.localScale = new Vector3(direction.x*5.0f, 5.0f, 5.0f);
+            m_body2d.velocity = direction * speed;
+        }).OnUpdate(()=>{
+            var info = m_animator.GetCurrentAnimatorStateInfo(0);
+            if (HPStrip.value <= 0) FSM.ChangeState(StateType.Death);
+
+            if (info.normalizedTime >= .95f) FSM.ChangeState(StateType.Chase);
+        }).OnExit(()=>{
+            beHit = false;
+        });
+
+        // death
+        FSM.State(StateType.Death).OnEnter(()=>{
+            Debug.Log("ener Death..");
+            HPStrip.gameObject.SetActive(false);
+            m_animator.SetTrigger("Death");
+        }).OnUpdate(()=>{
+        }).OnExit(()=>{
+            Destroy(gameObject);
+        });
+
+        FSM.StartState(StateType.Idle);
+        // ActionKit.OnUpdate.Register(()=>{
+        // }).UnRegisterWhenGameObjectDestroyed(gameObject);
+    }
+	
     void Update () {
+        // distance = Vector3.Distance(m_player.position, transform.position);
+        FSM.Update();
         // if (m_player.position.x < transform.position.x)
         // {
         //     facingDirection = -1;// 玩家在敌人的左边
@@ -143,88 +272,75 @@ public class Enemy : FlyChessController{
         //     transform.localScale = new Vector3(-5.0f, 5.0f, 1.0f);
         // }
 
-        float distance = Vector3.Distance(m_player.position, transform.position);
-        switch (CurrentState)
-        {
-            case EnemyState.idle:
-                // idle
-                m_attackTrigger.gameObject.SetActive(false); 
-                m_animator.SetTrigger("Idle");
-                checkAttackDistance(distance);
-                break; 
-            case EnemyState.run:
-                m_attackTrigger.gameObject.SetActive(false); 
-                // m_animator.SetTrigger("Run");
-
-                Vector3 direct= transform.right  * Time.deltaTime * speed * facingDirection;
-                transform.Translate(direct);
-
-                attackCounter = attackTime;// 每次移动到最小攻击距离时就会立即攻击
-                // m_animator.SetFloat("AirSpeed", m_body2d.velocity.y);
-                // m_animator.SetInteger("AnimState", 2);//移动的时候播放跑步动画
-
-                checkAttackDistance(distance);
-               
-                break;
-            case EnemyState.attack:
-                attackCounter += Time.deltaTime;
-                if (attackCounter > attackTime)//定时器功能实现
-                {
-                    m_attackTrigger.gameObject.SetActive(true);
-                    m_animator.ResetTrigger("Idle");
-                    m_animator.SetTrigger("Attack1");
-                    attackCounter = 0;
-                }
-                checkAttackDistance(distance);
-                break;
-            case EnemyState.hurt:
-                transform.localScale = new Vector3(direction.x*5.0f, 5.0f, 5.0f);
-                m_body2d.velocity = direction * speed;
-
-                m_attackTrigger.gameObject.SetActive(false);
-                m_animator.SetTrigger("Hurt");
-
-                if (HPStrip.value == 0) 
-                    CurrentState = EnemyState.death;
-                else 
-                    checkAttackDistance(distance);
-
-                break;
-            case EnemyState.death:
-                m_attackTrigger.gameObject.SetActive(false);
-                CurrentState = EnemyState.destory;
-                m_animator.SetTrigger("Death");
-                // transform.Translate(Vector3.up*-1 * Time.deltaTime);
-                // transform.position = transform.position + new Vector3(0, -1*deathMove, 0);
-                HPStrip.gameObject.SetActive(false);
-                break;
-
-            default:
-                m_attackTrigger.gameObject.SetActive(false);
-
-                deathCounter += Time.deltaTime;
-                if (deathCounter > 3) Destroy(this.gameObject);
-
-                // m_animator.ResetTrigger("Death");
-                m_animator.ResetTrigger("Attack1");
-                m_animator.ResetTrigger("Idle");
-                break;
-
-        }
-        // if (m_animator.GetCurrentAnimatorStateInfo(0).IsName("Attack1") || m_animator.GetCurrentAnimatorStateInfo(0).IsName("Attack2"))
+        // switch (CurrentState)
         // {
-        // }else {
-        // }
+        //     case EnemyState.idle:
+        //         break; 
+        //     case EnemyState.run:
+        //         break;
+        //     case EnemyState.attack:
+        //         attackCounter += Time.deltaTime;
+        //         if (attackCounter > attackTime)//定时器功能实现
+        //         {
+        //             m_attackTrigger.gameObject.SetActive(true);
+        //             m_animator.ResetTrigger("Idle");
+        //             m_animator.SetTrigger("Attack1");
+        //             attackCounter = 0;
+        //         }
+        //         checkAttackDistance(distance);
+        //         break;
+        //     case EnemyState.hurt:
+        //         transform.localScale = new Vector3(direction.x*5.0f, 5.0f, 5.0f);
+        //         m_body2d.velocity = direction * speed;
+
+        //         m_attackTrigger.gameObject.SetActive(false);
+        //         m_animator.SetTrigger("Hurt");
+
+        //         if (HPStrip.value == 0) 
+        //             CurrentState = EnemyState.death;
+        //         else 
+        //             checkAttackDistance(distance);
+
+        //         break;
+        //     case EnemyState.death:
+        //         m_attackTrigger.gameObject.SetActive(false);
+        //         CurrentState = EnemyState.destory;
+        //         m_animator.SetTrigger("Death");
+        //         // transform.Translate(Vector3.up*-1 * Time.deltaTime);
+        //         // transform.position = transform.position + new Vector3(0, -1*deathMove, 0);
+        //         HPStrip.gameObject.SetActive(false);
+        //         break;
+
+        //     default:
+        //         m_attackTrigger.gameObject.SetActive(false);
+
+        //         deathCounter += Time.deltaTime;
+        //         if (deathCounter > 3) Destroy(this.gameObject);
+
+        //         // m_animator.ResetTrigger("Death");
+        //         m_animator.ResetTrigger("Attack1");
+        //         m_animator.ResetTrigger("Idle");
+        //         break;
+    }
+
+     public void FlipTo(Transform target)
+    {
+        if (target != null)
+        {
+            if (transform.position.x > target.position.x)
+            {
+                transform.localScale = new Vector3(5, 5, 1);
+            }
+            else if (transform.position.x < target.position.x)
+            {
+                transform.localScale = new Vector3(-5, 5, 1);
+            }
+        }
     }
 
     public void OnDamage(DamageEvent e)
     {
-        if (HPStrip.value == 0)
-        {
-            CurrentState = EnemyState.death;
-            return;
-        }
-        CurrentState = EnemyState.hurt;
+        beHit = true;
         this.direction = e.direction; 
         HPStrip.value -= e.HPCost;
     }
@@ -241,6 +357,7 @@ public class Enemy : FlyChessController{
     //        if (player != null) player.SendCommand<DamageCommand>();
     //     }
     // }
+
 
      private void OnTriggerEnter2D (Collider2D collision)
     {

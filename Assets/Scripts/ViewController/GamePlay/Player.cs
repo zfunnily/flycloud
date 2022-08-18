@@ -118,7 +118,7 @@ namespace QFramework.FlyChess
         {
             m_rolling = true;
             m_animator.SetTrigger("Roll");
-            m_body2d.velocity = new Vector2(mGameModel.Face.Value.x* mGameModel.RollForce, m_body2d.velocity.y);
+            m_body2d.velocity = new Vector2(transform.localScale.x * mGameModel.RollForce, m_body2d.velocity.y);
         }
 
         //Run
@@ -205,7 +205,7 @@ namespace QFramework.FlyChess
     }
     public void AttackIng()
     {
-        m_attackTrigger.localPosition = new Vector2(0.6f*mGameModel.Face.Value.x, .66f);
+        m_attackTrigger.localPosition = new Vector2((1.0f), .66f);
         m_attackTrigger.gameObject.SetActive(true); 
     }
 
