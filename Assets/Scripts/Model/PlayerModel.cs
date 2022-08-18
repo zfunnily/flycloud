@@ -29,7 +29,7 @@ namespace QFramework.FlyChess
         public BindableProperty<float> SP{ get; set;} = new BindableProperty<float>() { Value = 100 };
         public BindableProperty<float> BeAttack{ get; set; } = new BindableProperty<float>() { Value = 10 };
         public BindableProperty<float> Speed{ get; set;} = new BindableProperty<float>() { Value = 2 };
-        public BindableProperty<float> JumpForce{ get; set; } = new BindableProperty<float>() { Value = 10 };
+        public BindableProperty<float> JumpForce{ get; set; } = new BindableProperty<float>() { Value = 5 };
         public BindableProperty<float> RollForce{ get; set;} = new BindableProperty<float>() { Value = 10 };
         public BindableProperty<float> NoBlood{ get; set;} = new BindableProperty<float>() { Value = 0};
         // public BindableProperty<Slider> HPStrip{ get; } = new BindableProperty<Slider>() { Value = Get };

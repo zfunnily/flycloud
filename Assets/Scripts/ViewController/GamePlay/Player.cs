@@ -33,6 +33,7 @@ namespace QFramework.FlyChess
     private Slider HPStrip;    // 添加血条Slider的引用
     private Transform m_attackTrigger;
     private bool isAttack;
+    private int jumpCount;
 
     
     // Use this for initialization
@@ -89,6 +90,7 @@ namespace QFramework.FlyChess
 
         float inputX = e.hor;
         Move(e);
+        Jump();
         Attack();        
 
         //Death
@@ -97,11 +99,9 @@ namespace QFramework.FlyChess
             // m_animator.SetBool("noBlood", m_noBlood);
             // m_animator.SetTrigger("Death");
         }
-            
         //Hurt
         else if (Input.GetKeyDown("q") && !m_rolling)
             m_animator.SetTrigger("Hurt");
-
 
         // Block
         else if (Input.GetMouseButtonDown(1) && !m_rolling)
@@ -119,16 +119,6 @@ namespace QFramework.FlyChess
             m_rolling = true;
             m_animator.SetTrigger("Roll");
             m_body2d.velocity = new Vector2(mGameModel.Face.Value.x* mGameModel.RollForce, m_body2d.velocity.y);
-        }
-
-        //Jump
-        else if (Input.GetKeyDown("space") && m_grounded && !m_rolling)
-        {
-            m_animator.SetTrigger("Jump");
-            m_grounded = false;
-            m_animator.SetBool("Grounded", m_grounded);
-            m_body2d.velocity = new Vector2(m_body2d.velocity.x, mGameModel.JumpForce);
-            m_groundSensor.Disable(0.2f);
         }
 
         //Run
@@ -158,21 +148,20 @@ namespace QFramework.FlyChess
     void Move(DirInputEvent e)
     {
         // -- Handle input and movement --
-        // float inputX = Input.GetAxis("Horizontal");
         float inputX = e.hor;
 
         // Swap direction of sprite depending on walk direction
         if (inputX > 0)
         {
-            GetComponent<SpriteRenderer>().flipX = false;
+            // GetComponent<SpriteRenderer>().flipX = false;
             mGameModel.Face= new BindableProperty<Vector2>(new Vector2(1,1)); 
         }
         else if (inputX < 0)
         {
-            GetComponent<SpriteRenderer>().flipX = true;
+            // GetComponent<SpriteRenderer>().flipX = true;
             mGameModel.Face= new BindableProperty<Vector2>(new Vector2(-1,1)); 
         }
-        // transform.localScale = new Vector3(mGameModel.Face.Value.x, 1, 1);
+        transform.localScale = new Vector3(mGameModel.Face.Value.x, 1, 1);
 
         if (!isAttack && !m_rolling)
             m_body2d.velocity = new Vector2(inputX * mGameModel.Speed, m_body2d.velocity.y);
@@ -180,7 +169,6 @@ namespace QFramework.FlyChess
         {
             m_body2d.velocity = new Vector2(transform.localScale.x * mGameModel.Speed, m_body2d.velocity.y);
         }
-
 
         //Set AirSpeed in animator
         m_animator.SetFloat("AirSpeedY", m_body2d.velocity.y);
@@ -191,6 +179,30 @@ namespace QFramework.FlyChess
         m_animator.SetBool("WallSlide", m_isWallSliding);
     }
 
+    void Jump()
+    {
+        if (m_grounded) jumpCount = 1;
+        if (Input.GetKeyDown("space") && jumpCount > 0)
+        {
+            m_animator.SetTrigger("Jump");
+            m_animator.SetBool("Grounded", m_grounded);
+
+            // m_body2d.velocity = new Vector2(m_body2d.velocity.x, mGameModel.JumpForce);
+            m_body2d.velocity = Vector2.up * mGameModel.JumpForce;
+            jumpCount--;
+        }
+        else if (Input.GetKey("space") && jumpCount == 0 && m_grounded)
+        {
+            m_animator.SetTrigger("Jump");
+            m_animator.SetBool("Grounded", m_grounded);
+            m_groundSensor.Disable(0.2f);
+
+            m_body2d.velocity = Vector2.up *mGameModel.JumpForce;
+            m_grounded = false;
+            jumpCount--;
+        }
+
+    }
     public void AttackIng()
     {
         m_attackTrigger.localPosition = new Vector2(0.6f*mGameModel.Face.Value.x, .66f);

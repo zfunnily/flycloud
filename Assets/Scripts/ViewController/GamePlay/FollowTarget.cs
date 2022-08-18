@@ -18,27 +18,27 @@ public class FollowTarget: MonoBehaviour
 
     void Start() {
         player = GameObject.FindGameObjectWithTag("Player").transform;
-        // offset = player.position - transform.position ;
+        offset = player.position - transform.position ;
     }
 
     void Update() 
     {
-        if (Input.GetKeyDown(KeyCode.B) && sence_idx==0) 
-        {
-            // sence_idx+=2;
-        }
-        // this.transform.position = player.position - offset;
-        Targetpos = new Vector3(player.transform.position.x, player.transform.position.y, transform.position.z);
-        if (player.transform.localScale.x > 0)
-        {
-            Targetpos = new Vector3(player.transform.position.x + Ahead, player.transform.position.y-sence_idx, transform.position.z);
-        }
-        if (player.transform.localScale.x < 0)
-        {
-            Targetpos = new Vector3(player.transform.position.x - Ahead, player.transform.position.y-sence_idx, transform.position.z);
-        }
-        //让摄像机进行平滑的移动
-        transform.position = Vector3.Lerp(transform.position, Targetpos, smooth);
+        this.transform.position = player.position - offset;
+        // if (Input.GetKeyDown(KeyCode.B) && sence_idx==0) 
+        // {
+        //     // sence_idx+=2;
+        // }
+        // Targetpos = new Vector3(player.transform.position.x, player.transform.position.y, transform.position.z);
+        // if (player.transform.localScale.x > 0)
+        // {
+        //     Targetpos = new Vector3(player.transform.position.x + Ahead, player.transform.position.y-sence_idx, transform.position.z);
+        // }
+        // if (player.transform.localScale.x < 0)
+        // {
+        //     Targetpos = new Vector3(player.transform.position.x - Ahead, player.transform.position.y-sence_idx, transform.position.z);
+        // }
+        // //让摄像机进行平滑的移动
+        // transform.position = Vector3.Lerp(transform.position, Targetpos, smooth);
     }
 
 }
