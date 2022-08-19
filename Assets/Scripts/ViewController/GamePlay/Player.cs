@@ -11,7 +11,6 @@ namespace QFramework.FlyChess
 	public partial class Player : FlyChessController
 	{
     [SerializeField] GameObject m_slideDust;
-
     private Animator            m_animator;
     private Rigidbody2D         m_body2d;
     private Sensor_HeroKnight   m_groundSensor;
@@ -27,36 +26,38 @@ namespace QFramework.FlyChess
     private float               m_delayToIdle = 0.0f;
     private float               m_rollDuration = 8.0f / 14.0f;
     private float               m_rollCurrentTime;
-    private bool m_noBlood;
+    private bool                m_noBlood;
 
-    private IPlayerModel  mGameModel;
-    private Slider HPStrip;    // 添加血条Slider的引用
-    private Transform m_attackTrigger;
-    private bool isAttack;
-    private int jumpCount;
+    private IPlayerModel        m_playerMod;
+    private Slider              m_hpStrip;    // 添加血条Slider的引用
+    private Transform           m_attackTrigger;
+    private bool                m_isAttack;
+    private int                 m_jumpCount;
 
-    
-    // Use this for initialization
-    void Awake()
-    {
-        m_animator = GetComponent<Animator>();
-        m_body2d = GetComponent<Rigidbody2D>();
-        m_groundSensor = transform.Find("GroundSensor").GetComponent<Sensor_HeroKnight>();
-        m_wallSensorR1 = transform.Find("WallSensor_R1").GetComponent<Sensor_HeroKnight>();
-        m_wallSensorR2 = transform.Find("WallSensor_R2").GetComponent<Sensor_HeroKnight>();
-        m_wallSensorL1 = transform.Find("WallSensor_L1").GetComponent<Sensor_HeroKnight>();
-        m_wallSensorL2 = transform.Find("WallSensor_L2").GetComponent<Sensor_HeroKnight>();
-        m_attackTrigger = transform.Find("AttackCollider").GetComponent<Transform>();
-        HPStrip         = transform.parent.Find("CharacterInfo").Find("HP").GetComponent<Slider>();
-
-        mGameModel = this.GetModel<IPlayerModel>();
-        mGameModel.Speed = new BindableProperty<float>(4.0f);
-        this.RegisterEvent<DirInputEvent>(OnInputDir);
-        this.RegisterEvent<SkillEvent>(OnSkill);
-    }
     private static Action mUpdateAction;
     public static void AddUpdateAction(Action fun) => mUpdateAction += fun;
     public static void RemoveUpdateAction(Action fun) => mUpdateAction -= fun;
+
+
+    // Use this for initialization
+    void Awake()
+    {
+        m_animator      = GetComponent<Animator>();
+        m_body2d        = GetComponent<Rigidbody2D>();
+        m_groundSensor  = transform.Find("GroundSensor").GetComponent<Sensor_HeroKnight>();
+        m_wallSensorR1  = transform.Find("WallSensor_R1").GetComponent<Sensor_HeroKnight>();
+        m_wallSensorR2  = transform.Find("WallSensor_R2").GetComponent<Sensor_HeroKnight>();
+        m_wallSensorL1  = transform.Find("WallSensor_L1").GetComponent<Sensor_HeroKnight>();
+        m_wallSensorL2  = transform.Find("WallSensor_L2").GetComponent<Sensor_HeroKnight>();
+        m_attackTrigger = transform.Find("AttackCollider").GetComponent<Transform>();
+        m_hpStrip       = transform.parent.Find("CharacterInfo").Find("HP").GetComponent<Slider>();
+        m_playerMod     = this.GetModel<IPlayerModel>();
+
+        m_playerMod.Speed = new BindableProperty<float>(4.0f);
+
+        this.RegisterEvent<DirInputEvent>(OnInputDir);
+        this.RegisterEvent<SkillEvent>(OnSkill);
+    }
 
     private void Update()
     {
@@ -118,7 +119,7 @@ namespace QFramework.FlyChess
         {
             m_rolling = true;
             m_animator.SetTrigger("Roll");
-            m_body2d.velocity = new Vector2(transform.localScale.x * mGameModel.RollForce, m_body2d.velocity.y);
+            m_body2d.velocity = new Vector2(transform.localScale.x * m_playerMod.RollForce, m_body2d.velocity.y);
         }
 
         //Run
@@ -154,20 +155,20 @@ namespace QFramework.FlyChess
         if (inputX > 0)
         {
             // GetComponent<SpriteRenderer>().flipX = false;
-            mGameModel.Face= new BindableProperty<Vector2>(new Vector2(1,1)); 
+            m_playerMod.Face= new BindableProperty<Vector2>(new Vector2(1,1)); 
         }
         else if (inputX < 0)
         {
             // GetComponent<SpriteRenderer>().flipX = true;
-            mGameModel.Face= new BindableProperty<Vector2>(new Vector2(-1,1)); 
+            m_playerMod.Face= new BindableProperty<Vector2>(new Vector2(-1,1)); 
         }
-        transform.localScale = new Vector3(mGameModel.Face.Value.x, 1, 1);
+        transform.localScale = new Vector3(m_playerMod.Face.Value.x, 1, 1);
 
-        if (!isAttack && !m_rolling)
-            m_body2d.velocity = new Vector2(inputX * mGameModel.Speed, m_body2d.velocity.y);
+        if (!m_isAttack && !m_rolling)
+            m_body2d.velocity = new Vector2(inputX * m_playerMod.Speed, m_body2d.velocity.y);
         else
         {
-            m_body2d.velocity = new Vector2(transform.localScale.x * mGameModel.Speed, m_body2d.velocity.y);
+            m_body2d.velocity = new Vector2(transform.localScale.x * m_playerMod.Speed, m_body2d.velocity.y);
         }
 
         //Set AirSpeed in animator
@@ -181,28 +182,29 @@ namespace QFramework.FlyChess
 
     void Jump()
     {
-        if (m_grounded) jumpCount = 1;
-        if (Input.GetKeyDown("space") && jumpCount > 0)
+        if (m_grounded) m_jumpCount = 1;
+        if (Input.GetKeyDown("space") && m_jumpCount > 0)
         {
             m_animator.SetTrigger("Jump");
             m_animator.SetBool("Grounded", m_grounded);
 
             // m_body2d.velocity = new Vector2(m_body2d.velocity.x, mGameModel.JumpForce);
-            m_body2d.velocity = Vector2.up * mGameModel.JumpForce;
-            jumpCount--;
+            m_body2d.velocity = Vector2.up * m_playerMod.JumpForce;
+            m_jumpCount--;
         }
-        else if (Input.GetKey("space") && jumpCount == 0 && m_grounded)
+        else if (Input.GetKey("space") && m_jumpCount == 0 && m_grounded)
         {
             m_animator.SetTrigger("Jump");
             m_animator.SetBool("Grounded", m_grounded);
             m_groundSensor.Disable(0.2f);
 
-            m_body2d.velocity = Vector2.up *mGameModel.JumpForce;
+            m_body2d.velocity = Vector2.up *m_playerMod.JumpForce;
             m_grounded = false;
-            jumpCount--;
+            m_jumpCount--;
         }
 
     }
+
     public void AttackIng()
     {
         m_attackTrigger.localPosition = new Vector2((1.0f), .66f);
@@ -211,14 +213,14 @@ namespace QFramework.FlyChess
 
     public void AttackOver()
     {
-        isAttack = false;
+        m_isAttack = false;
         m_attackTrigger.gameObject.SetActive(false); 
     }
     void Attack()
     {
-        if(Input.GetMouseButtonDown(0) && !m_rolling && !isAttack)
+        if(Input.GetMouseButtonDown(0) && !m_rolling && !m_isAttack)
         {
-            isAttack = true;
+            m_isAttack = true;
             m_currentAttack++;
             if (m_currentAttack > 3)
                 m_currentAttack = 1;
@@ -255,7 +257,7 @@ namespace QFramework.FlyChess
     {
         Vector3 spawnPosition;
 
-        if (mGameModel.Face.Value.x== 1)
+        if (m_playerMod.Face.Value.x== 1)
             spawnPosition = m_wallSensorR2.transform.position;
         else
             spawnPosition = m_wallSensorL2.transform.position;
@@ -266,33 +268,9 @@ namespace QFramework.FlyChess
             // Set correct arrow spawn position
             GameObject dust = Instantiate(m_slideDust, spawnPosition, gameObject.transform.localRotation) as GameObject;
             // Turn arrow in correct direction
-            dust.transform.localScale = new Vector3(mGameModel.Face.Value.x, 1, 1);
+            dust.transform.localScale = new Vector3(m_playerMod.Face.Value.x, 1, 1);
         }
     }
-  
-//    public override bool Damage()
-//    {
-//     m_animator.SetTrigger("Hurt");
-//     return true;
-//    }
-
-//     public override bool Dodge()
-//     {
-//         if (m_animator.GetCurrentAnimatorStateInfo(0).IsName("Roll"))
-//         {
-//             return true;
-//         }
-//         return false;
-//     }
-//     public override bool Block()
-//     {
-//         if (m_animator.GetCurrentAnimatorStateInfo(0).IsName("Block") || m_animator.GetCurrentAnimatorStateInfo(0).IsName("Idle Block"))
-//         {
-//             return true;
-//         }
-//         return false;
-//     }
-
 
     private void OnTriggerEnter2D (Collider2D collision)
     {
