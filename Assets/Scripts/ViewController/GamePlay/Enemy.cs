@@ -33,6 +33,9 @@ public class Enemy : FlyChessController{
     private float               m_idleTimer;
     private int                 m_patrolPosition;
     private Transform           m_attackArea;
+    private bool                m_isAttack;
+    private int                 m_currentAttack = 0;
+    private float               m_timeSinceAttack = 2.0f;
 
     // Start is called before the first frame update
     // Use this for initialization
@@ -43,6 +46,7 @@ public class Enemy : FlyChessController{
         m_attackArea    = transform.Find("AttackArea").transform;
         m_playerMod     = this.GetModel<GameModel>();
         m_hpStrip.value = m_hpStrip.maxValue = 100;    //初始化血条
+        m_attackTrigger = transform.Find("AttackCollider").transform;
         m_FSM             = new FSM<StateType>();
 
         initFSM();
@@ -52,8 +56,7 @@ public class Enemy : FlyChessController{
     {
         // idle
         m_FSM.State(StateType.Idle).OnEnter(()=>{
-            Debug.Log("ener idle..");
-            m_attackTrigger.gameObject.SetActive(false); 
+            // Debug.Log("ener idle..");
             m_animator.SetTrigger("Idle");
         }).OnUpdate(()=>{
             m_idleTimer += Time.deltaTime;
@@ -74,7 +77,7 @@ public class Enemy : FlyChessController{
 
         // patrol
         m_FSM.State(StateType.Patrol).OnEnter(()=>{
-            Debug.Log("ener Patrol..");
+            // Debug.Log("ener Patrol..");
             m_animator.SetTrigger("Run");
         }).OnUpdate(()=>{
             FlipTo(m_patrolPoints[m_patrolPosition]);
@@ -108,7 +111,7 @@ public class Enemy : FlyChessController{
         
         // chase
         m_FSM.State(StateType.Chase).OnEnter(()=>{
-            Debug.Log("enter Chase..");
+            // Debug.Log("enter Chase..");
             m_animator.SetTrigger("Run");
         }).OnUpdate(()=>{
             FlipTo(m_player);
@@ -124,7 +127,7 @@ public class Enemy : FlyChessController{
                 transform.position.x < m_chasePoints[0].position.x ||
                 transform.position.x > m_chasePoints[1].position.x)
             {
-            Debug.Log("enter Chase update..");
+            // Debug.Log("enter Chase update..");
                 ChangeState(StateType.Idle);
             }
             if (Physics2D.OverlapCircle(m_attackArea.position, 0.35f))
@@ -136,7 +139,7 @@ public class Enemy : FlyChessController{
 
         // react
         m_FSM.State(StateType.React).OnEnter(()=>{
-            Debug.Log("enter React..");
+            // Debug.Log("enter React..");
         }).OnUpdate(()=>{
             var info = m_animator.GetCurrentAnimatorStateInfo(0);
             if (m_beHit)
@@ -153,10 +156,10 @@ public class Enemy : FlyChessController{
 
         // attack
         m_FSM.State(StateType.Attack).OnEnter(()=>{
-            Debug.Log("ener Attack..");
-            m_attackTrigger.gameObject.SetActive(true);
-            m_animator.SetTrigger("Attack1");
+            // Debug.Log("ener Attack..");
+            Attack();
         }).OnUpdate(()=>{
+
             var info = m_animator.GetCurrentAnimatorStateInfo(0);
     
             if (m_beHit) ChangeState(StateType.Hit);
@@ -167,7 +170,7 @@ public class Enemy : FlyChessController{
 
         // hit
         m_FSM.State(StateType.Hit).OnEnter(()=>{
-            Debug.Log("enter Hit..");
+            // Debug.Log("enter Hit..");
             var face = 1;
             if (!FlipTo(m_player)) face = -1;
 
@@ -185,7 +188,7 @@ public class Enemy : FlyChessController{
 
         // death
         m_FSM.State(StateType.Death).OnEnter(()=>{
-            Debug.Log("ener Death..");
+            // Debug.Log("ener Death..");
             m_hpStrip.gameObject.SetActive(false);
             m_animator.SetTrigger("Death");
         }).OnUpdate(()=>{
@@ -199,6 +202,48 @@ public class Enemy : FlyChessController{
     void ChangeState(StateType typ)
     {
         m_FSM.ChangeState(typ);
+    }
+
+    public StateType FSMState()
+    {
+        return m_FSM.CurrentStateId;
+    }
+
+    public void AttackIng()
+    {
+        // m_attackTrigger.localPosition = new Vector2((1.0f), .66f);
+        m_attackTrigger.gameObject.SetActive(true); 
+    }
+
+    public void AttackOver()
+    {
+        m_isAttack = false;
+        m_attackTrigger.gameObject.SetActive(false); 
+    }
+
+    void Attack()
+    {
+        if(!m_isAttack)
+        {
+            m_isAttack = true;
+            m_currentAttack++;
+            if (m_currentAttack > 2)
+                m_currentAttack = 1;
+
+            m_animator.SetTrigger("Attack" + m_currentAttack);
+            // Reset timer
+            m_timeSinceAttack = 2.0f;
+        }
+
+        if (m_timeSinceAttack != 0)
+        {
+            m_timeSinceAttack -= Time.deltaTime;
+            if (m_timeSinceAttack <= 0)
+            {
+                m_timeSinceAttack = 0;
+                m_currentAttack = 0;
+            }
+        }
     }
 	
     void Update () {

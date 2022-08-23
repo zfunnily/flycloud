@@ -27,6 +27,7 @@ namespace QFramework.FlyChess
     private float               m_rollDuration = 8.0f / 14.0f;
     private float               m_rollCurrentTime;
     private bool                m_noBlood;
+    private bool                m_isDeath;
 
     private IPlayerModel        m_playerMod;
     private Slider              m_hpStrip;    // 添加血条Slider的引用
@@ -34,7 +35,7 @@ namespace QFramework.FlyChess
     private bool                m_isAttack;
     private int                 m_jumpCount;
 
-    private static Action mUpdateAction;
+    private static              Action mUpdateAction;
     public static void AddUpdateAction(Action fun) => mUpdateAction += fun;
     public static void RemoveUpdateAction(Action fun) => mUpdateAction -= fun;
 
@@ -54,6 +55,7 @@ namespace QFramework.FlyChess
         m_playerMod     = this.GetModel<IPlayerModel>();
 
         m_playerMod.Speed = new BindableProperty<float>(4.0f);
+        m_hpStrip.value = m_playerMod.HP;
 
         this.RegisterEvent<DirInputEvent>(OnInputDir);
         this.RegisterEvent<SkillEvent>(OnSkill);
@@ -61,6 +63,7 @@ namespace QFramework.FlyChess
 
     private void Update()
     {
+        if (m_isDeath) return;
         mUpdateAction?.Invoke();
     }
 
@@ -94,14 +97,8 @@ namespace QFramework.FlyChess
         Jump();
         Attack();        
 
-        //Death
-        if (Input.GetKeyDown("e") && !m_rolling)
-        {
-            // m_animator.SetBool("noBlood", m_noBlood);
-            // m_animator.SetTrigger("Death");
-        }
         //Hurt
-        else if (Input.GetKeyDown("q") && !m_rolling)
+        if (Input.GetKeyDown("q") && !m_rolling)
             m_animator.SetTrigger("Hurt");
 
         // Block
@@ -272,14 +269,30 @@ namespace QFramework.FlyChess
         }
     }
 
+    void OnDamage(float hit)
+    {
+        m_animator.SetTrigger("Hurt");
+        m_hpStrip.value -= hit;
+        if (m_hpStrip.value <= 0)
+        {
+            m_animator.SetBool("noBlood", false);
+            m_animator.SetTrigger("Death");
+            m_isDeath = true;
+        }
+    }
+
     private void OnTriggerEnter2D (Collider2D collision)
     {
-        if (collision.CompareTag("Player"))
+        if (collision.CompareTag("EnemyCollider"))
         {
             // AttackSense.Instance.HitPause(6);
             // AttackSense.Instance.CameraShake(.1f, .015f);
+            // this.OnDamage(20);
 
-        //    this.SendCommand<DamageCommand>();
+            var enemy = collision.transform.parent.GetComponent<Enemy>();
+            if (enemy == null) return;
+            if (enemy.FSMState() == StateType.Attack)
+                Debug.Log("On player.... " + collision.tag + "; this.tag: " + this.gameObject.tag +"; Current enemy state: "+enemy.FSMState());
         }
 
         // 1. 如何判断近战攻击击中了子弹？

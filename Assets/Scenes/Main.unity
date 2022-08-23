@@ -8302,7 +8302,7 @@ GameObject:
   m_Component:
   - component: {fileID: 362770159}
   - component: {fileID: 362770161}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: AttackCollider
   m_TagString: EnemyCollider
   m_Icon: {fileID: 0}
@@ -31971,7 +31971,7 @@ GameObject:
   - component: {fileID: 9117128348869801490}
   - component: {fileID: 9117128348869801488}
   - component: {fileID: 9117128348869801489}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: HeroKnight
   m_TagString: Player
   m_Icon: {fileID: 0}
@@ -33146,7 +33146,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_hpStrip: {fileID: 1726367727}
-  m_attackTrigger: {fileID: 362770159}
+  m_attackTrigger: {fileID: 0}
   m_patrolPoints:
   - {fileID: 541707034}
   - {fileID: 1694895623}
@@ -33173,7 +33173,7 @@ Rigidbody2D:
   m_Interpolate: 0
   m_SleepingMode: 1
   m_CollisionDetection: 0
-  m_Constraints: 6
+  m_Constraints: 5
 --- !u!61 &8192138639834709626
 BoxCollider2D:
   m_ObjectHideFlags: 0
