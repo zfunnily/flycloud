@@ -11,13 +11,13 @@ public abstract  class Skill: FlyChessController
 {
     private Transform m_Transform;
 
-    private CharacterData m_PlayerData;
+    private FlyChessController m_PlayerData;
 
     private SkillInfo m_NowSKill;
     // public List<SkillData> Skills;
     private SkillSystem m_Deployer;
 
-    public CharacterData characterData {
+    public FlyChessController characterData {
         get { return m_PlayerData; }
         set
         {
@@ -28,7 +28,7 @@ public abstract  class Skill: FlyChessController
     private void Awake()
     {
         m_Transform = GetComponent<Transform>();
-        m_PlayerData = GetComponent<CharacterData>();
+        m_PlayerData = GetComponent<FlyChessController>();
         m_Deployer = GetComponent<SkillSystem>();
     }
 

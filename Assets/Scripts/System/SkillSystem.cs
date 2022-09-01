@@ -33,11 +33,11 @@ namespace QFramework.FlyChess
     {
         public Queue<SkillInfo> SkillInfos=> mSkillInfos;
         private Queue<SkillInfo> mSkillInfos = new Queue<SkillInfo>();
-        private CharacterData m_PlayerData;
+        private FlyChessController m_PlayerData;
         public int m_facingDirection;
 
 
-        public CharacterData playerData
+        public FlyChessController playerData
         {
             get { return m_PlayerData; }
             set

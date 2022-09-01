@@ -159,7 +159,7 @@ namespace QFramework.FlyChess
             // GetComponent<SpriteRenderer>().flipX = true;
             m_playerMod.Face= new BindableProperty<Vector2>(new Vector2(-1,1)); 
         }
-        transform.localScale = new Vector3(m_playerMod.Face.Value.x, 1, 1);
+        transform.localScale = new Vector3(m_playerMod.Face.Value.x * 3, 3, 1);
 
         if (!m_isAttack && !m_rolling)
             m_body2d.velocity = new Vector2(inputX * m_playerMod.Speed, m_body2d.velocity.y);
@@ -265,7 +265,7 @@ namespace QFramework.FlyChess
             // Set correct arrow spawn position
             GameObject dust = Instantiate(m_slideDust, spawnPosition, gameObject.transform.localRotation) as GameObject;
             // Turn arrow in correct direction
-            dust.transform.localScale = new Vector3(m_playerMod.Face.Value.x, 1, 1);
+            dust.transform.localScale = new Vector3(m_playerMod.Face.Value.x*3, 1*3, 1);
         }
     }
 
@@ -310,12 +310,12 @@ namespace QFramework.FlyChess
             }
             if (collision.tag == "Player") 
             {
-               CharacterData gameObject = GameObject.FindGameObjectWithTag(collision.tag).GetComponent<CharacterData>();
+               FlyChessController gameObject = GameObject.FindGameObjectWithTag(collision.tag).GetComponent<FlyChessController>();
                 if (gameObject != null) 
                 {
-                    if (gameObject.Dodge()) return;
+                    // if (gameObject.Dodge()) return;
 
-                    if (!gameObject.Block()) gameObject.Damage();
+                    // if (!gameObject.Block()) gameObject.Damage();
                     
                     
                 }
@@ -325,9 +325,9 @@ namespace QFramework.FlyChess
         {
             if (collision.tag == "Enemy")
             {
-               CharacterData gameObject = GameObject.FindGameObjectWithTag(collision.tag).GetComponent<CharacterData>();
-                if (gameObject != null) gameObject.Damage(); 
-                Destroy(this.gameObject);
+               FlyChessController gameObject = GameObject.FindGameObjectWithTag(collision.tag).GetComponent<FlyChessController>();
+                // if (gameObject != null) gameObject.Damage(); 
+                // Destroy(this.gameObject);
             }
         }
     }
