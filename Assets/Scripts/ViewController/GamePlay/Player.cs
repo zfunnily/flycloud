@@ -165,7 +165,7 @@ namespace QFramework.FlyChess
             m_body2d.velocity = new Vector2(inputX * m_playerMod.Speed, m_body2d.velocity.y);
         else
         {
-            m_body2d.velocity = new Vector2(transform.localScale.x * m_playerMod.Speed, m_body2d.velocity.y);
+            m_body2d.velocity = new Vector2(inputX * m_playerMod.Speed * 2, m_body2d.velocity.y);
         }
 
         //Set AirSpeed in animator
