@@ -60,7 +60,7 @@ public class Enemy : FlyChessController{
             m_animator.SetTrigger("Idle");
         }).OnUpdate(()=>{
             m_idleTimer += Time.deltaTime;
-            if (m_beHit) ChangeState(StateType.Hit);
+            // if (m_beHit) ChangeState(StateType.Hit);
             if (m_player != null &&
                 m_player.position.x >= this.m_chasePoints[0].position.x &&
                 m_player.position.x <= this.m_chasePoints[1].position.x)
@@ -86,7 +86,7 @@ public class Enemy : FlyChessController{
             transform.position = Vector2.MoveTowards(transform.position, tmp
                 , m_patrolSpeed * Time.deltaTime);
     
-            if (m_beHit) ChangeState(StateType.Hit);
+            // if (m_beHit) ChangeState(StateType.Hit);
 
             if (m_player != null &&
                 m_player.position.x >= m_chasePoints[0].position.x &&
@@ -119,7 +119,7 @@ public class Enemy : FlyChessController{
             if (m_player)
                 transform.position = Vector2.MoveTowards(transform.position, new Vector3(m_player.position.x, transform.position.y, transform.position.z), m_chaseSpeed * Time.deltaTime);
 
-            if (m_beHit) ChangeState(StateType.Hit);
+            // if (m_beHit) ChangeState(StateType.Hit);
 
             // Debug.Log("transform: " + transform.position.x + ";0: "+ chasePoints[0].position.x + ";1: " + chasePoints[1].position.x);
 
@@ -142,15 +142,10 @@ public class Enemy : FlyChessController{
             // Debug.Log("enter React..");
         }).OnUpdate(()=>{
             var info = m_animator.GetCurrentAnimatorStateInfo(0);
-            if (m_beHit)
-            {
-                ChangeState(StateType.Hit);
-            }
 
-            if (info.normalizedTime >= .95f)
-            {
-                ChangeState(StateType.Chase);
-            }
+            // if (m_beHit) ChangeState(StateType.Hit);
+
+            if (info.normalizedTime >= .95f) ChangeState(StateType.Chase);
         }).OnExit(()=>{
         });
 
@@ -162,7 +157,7 @@ public class Enemy : FlyChessController{
 
             var info = m_animator.GetCurrentAnimatorStateInfo(0);
     
-            if (m_beHit) ChangeState(StateType.Hit);
+            // if (m_beHit) ChangeState(StateType.Hit);
 
             if (info.normalizedTime >= .95f) ChangeState(StateType.Chase);
         }).OnExit(()=>{
@@ -271,6 +266,7 @@ public class Enemy : FlyChessController{
     public void OnDamage(float hit)
     {
         m_beHit = true;
+        m_FSM.ChangeState(StateType.Hit);
         m_hpStrip.value -= hit;
     }
 
@@ -281,7 +277,7 @@ public class Enemy : FlyChessController{
         {
             // 顿帧 & 屏幕震动
             AttackSense.Instance.HitPause(6);
-            AttackSense.Instance.CameraShake(.1f, .015f);
+            AttackSense.Instance.CameraShake(.2f, .015f);
             this.OnDamage(20);
         }
     }

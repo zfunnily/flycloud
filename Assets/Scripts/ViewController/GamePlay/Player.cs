@@ -204,7 +204,7 @@ namespace QFramework.FlyChess
 
     public void AttackIng()
     {
-        m_attackTrigger.localPosition = new Vector2((1.0f), .66f);
+        // m_attackTrigger.localPosition = new Vector2((1.0f), .66f);
         m_attackTrigger.gameObject.SetActive(true); 
     }
 
